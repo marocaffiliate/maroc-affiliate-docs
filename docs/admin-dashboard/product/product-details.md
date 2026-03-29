@@ -2,506 +2,438 @@
 
 ## Overview
 
-The Product Details page provides comprehensive information about a single product, including inventory data, variant details, and barcode generation for inventory tracking.
-
-## Location
-
-`/src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/page.tsx`
+The Product Details page provides a complete view of a single product, including inventory status, variant information, and tools for generating barcodes for inventory tracking.
 
 ## Purpose
 
-Display complete product information with:
+This page helps you:
 
-- Product overview and metadata
-- Image gallery and media
-- Stock summary and inventory data
-- Variant details table
-- QR code generation and printing
+- See complete product information at a glance
+- Understand current inventory levels
+- View all product variants and their stock
+- Generate QR codes for inventory tracking
+- Print barcode labels for physical products
+- Monitor product performance and history
 
-## Page Structure
+## What You'll See
 
-### Header Section
+### Page Header
 
-#### Navigation
+**Navigation Buttons**:
 
-- **Back button**: Return to product list
-- **Share button**: Share product link
-- **Edit button**: Edit product information
+- **Back**: Return to product list
+- **Share**: Share product link (if enabled)
+- **Edit**: Modify product details
 - **More options**: Additional actions menu
 
-#### Product Title and Badges
+**Product Title**: Product name displayed prominently
 
-- **Product name**: Large, bold title
-- **Status badge**: Current availability (Available, Out of Stock, etc.)
-- **Category badge**: Product category
-- **ID badge**: Product ID for reference
-- **Public/Private badge**: Visibility status
+**Status Badges**: Quick visual indicators showing:
 
-### Main Content Grid
+- **Availability Status**: Available, Out of Stock, Draft, etc.
+- **Category**: Which category the product belongs to
+- **Product ID**: Internal reference number
+- **Public/Private**: Whether product is visible to all sellers or restricted
 
-#### Image Gallery (Left Column)
+### Main Content Area
 
-- **Product images**: Display first image as main, others as thumbnails
-- **Product video**: If video exists, shown as embed or player
-- **Responsive layout**: Stacks vertically on mobile, side-by-side on desktop
-- **Lightbox**: Click to view full-size images
+#### Left Side: Image Gallery
 
-#### Product Information (Right Column)
+Visual presentation of your product:
 
-Contains tabbed information:
+**Main Image**: Large display of the first product image
 
-- **Overview**: Basic product details
-- **Pricing**: Price breakdown
-- **Stock**: Inventory summary
-- **Variants**: Variant assignments
-- **Metadata**: Additional product data
+- Click to view in full screen
+- Highest resolution version
+
+**Thumbnail Gallery**: Grid of all product images
+
+- Click any thumbnail to switch main image
+- Shows all angles and details
+
+**Product Video**: If video exists, shown as player
+
+- Embed video directly in the page
+- Play, pause, volume controls
+- Fullscreen viewing
+
+#### Right Side: Product Information
+
+Tabbed interface with detailed product data:
+
+**Overview Tab**: Basic product information
+
+- Product name and code
+- Description
+- Provider information
+- Category details
+- Rating and quality score
+
+**Pricing Tab**: Complete price breakdown
+
+- Buy price, selling price, old price
+- POS price and warehouse price
+- Special seller pricing (if any)
+- Price history
+
+**Stock Tab**: Inventory summary
+
+- Total stock across all locations
+- Reserved stock (allocated to orders)
+- Available stock (ready to ship)
+- Stock by location (main warehouse, other warehouses)
+- Stock trends and movements
+
+**Variants Tab**: Variant overview
+
+- Number of variants
+- Variant types (color/size or custom)
+- Stock levels per variant
+- Variant-specific pricing
+
+**Metadata Tab**: Additional information
+
+- Creation and update dates
+- System metadata
+- Audit trail information
 
 ### Variants Table Section
 
-#### Variant Information Table
+Comprehensive table showing all product variants:
 
-Shows all variant assignments:
+**Table Columns**:
 
-- **Variant name**: Color/size or custom type
-- **SKU code**: Unique variant identifier
-- **Stock levels**: Main stock and warehouse stock
-- **Barcodes**: QR code count
-- **Status**: Active/inactive status
-- **Actions**: Edit, generate barcode, manage stock
+1. **Variant**: Color/size or custom type (e.g., "Red-Large")
+2. **SKU**: Unique variant code for reference
+3. **Main Stock**: Quantity in primary warehouse
+4. **Warehouse Stock**: Quantity in other locations
+5. **Total Stock**: Combined inventory across all locations
+6. **Reserved**: Quantity allocated to open orders
+7. **Available**: Ready-to-ship quantity
+8. **Barcodes**: Number of QR codes generated
+9. **Status**: Active/inactive status
+10. **Actions**: Buttons to manage stock, generate barcode, edit
 
-### Barcode Generator Section
+**Table Features**:
 
-#### QR Code Generation
+- **Sorting**: Click column headers to sort
+- **Filtering**: Search by variant name or SKU
+- **Row Selection**: Select multiple variants for bulk actions
+- **Pagination**: Navigate through many variants
 
-Generate unique QR codes for each variant assignment:
+### Stock Summary Card
 
-- **One QR code per variant assignment**
-- **Unique identifier** for inventory tracking
-- **Stored in database** for reference
-- **Printable labels** for physical products
+Quick overview of product inventory:
 
-## Data Fetching
+**Key Metrics**:
 
-### Parallel Queries
+- **Total Stock**: All inventory across all warehouses
+- **Total Reserved**: Allocated to customer orders
+- **Total Available**: Ready for new orders
+- **Variant Count**: Number of different variants
+- **Color Count**: Number of unique color options
+- **Barcode Count**: Total QR codes generated
+- **Warehouse Count**: Number of warehouses with stock
 
-```typescript
-const [product, stockSummary] = await Promise.all([
-  getProductById(productId),
-  getProductStockSummary(productId),
-]);
-```
+**Visual Indicators**:
 
-### Product Data
+- Stock levels shown as percentages or color-coded badges
+- Alerts when stock is low
+- Out-of-stock warnings prominently displayed
 
-```typescript
-{
-  id: number,
-  name: string,
-  code: string,
-  description: string,
-  status: string,
-  variantType: "NONE" | "COLOR_SIZE" | "CUSTOM",
-  isPublic: boolean,
-  category: Category,
-  provider: User,
-  images: string[],
-  video: string[],
-  buyPrice: number,
-  sellingPrice: number,
-  posPrice: number,
-  wareHousePrice: number,
-  ratingStars: number,
-  minimumSellerType: string,
-  allowedSellers: User[],
-  productVariantAssignments: ProductVariantAssignment[],
-  specialSellerPrices: SpecialSellerPrice[],
-  barcodes: Barcode[]
-}
-```
+## Barcode Generation
 
-### Stock Summary
+### What Are Barcodes?
 
-```typescript
-{
-  totalStock: number,           // Total quantity across all locations
-  totalReserved: number,        // Reserved for orders
-  totalAvailable: number,        // Available for sale
-  variantCount: number,         // Number of variant assignments
-  colorCount: number,           // Number of unique colors
-  barcodeCount: number,         // Total QR codes generated
-  warehouseCount: number        // Number of warehouses with stock
-}
-```
+Barcodes (QR codes in this system) are:
 
-## Barcode Generation System
+- **Unique identifiers** for each product variant
+- **Scannable codes** that link to products in the system
+- **Inventory tracking tools** for stock management
+- **Physical labels** attached to products for easy scanning
 
-### Purpose
+### Why Use Barcodes?
 
-Generate unique QR codes for inventory tracking:
+**Benefits**:
 
-- **Each variant gets one QR code**
-- **QR code contains unique identifier**
-- **Used for stock scanning**
-- **Links to product/variant in system**
+- **Accurate inventory**: Scan to instantly update stock levels
+- **Quick lookups**: Scan QR code to see product details
+- **Error prevention**: Eliminate manual entry mistakes
+- **Efficiency**: Process many items quickly
+- **Tracking**: Trace inventory movements over time
+- **Loss prevention**: Know exactly what you have
 
-### QR Code Format
+### How Barcodes Work in This System
 
-```typescript
-Format: {
-  ProductCode;
-}
--{ VariantID } - { Timestamp } - { Index };
+**Unique QR Codes**: Each variant assignment gets one unique QR code
 
-Example: TSHIRT - ABC123 - 1712452800000 - 0;
-```
+- **Format**: Product code + variant ID + unique identifier
+- **Example**: TSHIRT-ABC123-1712452800000
+- **Stored in database**: System keeps record of all QR codes
+- **Linked to product**: QR code identifies specific product variant
 
-### Generation Process
+**Inventory Tracking**:
 
-#### Step 1: Select Variant Assignments
+- Scan QR code to identify product
+- Update stock levels instantly
+- Track movements between locations
+- Record transfers, sales, losses
 
-- List all variant assignments without QR codes
-- Select assignments to generate codes for
-- Filter by color/size/type as needed
-- Select all or select individually
+### Generating QR Codes
+
+#### Step 1: Select Variants
+
+When you first open the barcode section, you'll see:
+
+- List of all variant assignments for this product
+- Variants without QR codes highlighted
+- Variants with QR codes marked as "Has QR Code"
+
+**Selection Options**:
+
+- **Select All**: Click to select all variants without QR codes
+- **Select Individually**: Click checkboxes to choose specific variants
+- **Deselect All**: Clear selections and start over
+
+**Display**:
+Each variant shows:
+
+- Color swatch (for color variants)
+- Variant name and size
+- SKU code
+- Checkbox for selection
+- Status indicator (has QR code or not)
 
 #### Step 2: Generate QR Codes
 
-- Click "Generate QR Codes" button
-- System generates one QR code per selected assignment
-- QR codes stored in database with assignment reference
-- Success message shows count generated
+After selecting variants:
+
+1. Click "Generate QR Codes" button
+2. System creates one unique QR code per selected variant
+3. QR codes are stored in the database
+4. Success message shows how many were generated
+5. Variants update to show "Has QR Code" status
+
+**What Happens**:
+
+- Each selected variant gets one QR code
+- QR code contains unique identifier
+- System saves QR code data
+- No duplicate QR codes are created
+
+### Printing Barcode Labels
+
+After QR codes are generated, you can print physical labels:
+
+#### Step 1: Set Print Quantities
+
+**Quantity Per QR Code**: How many labels to print for each QR code
+
+- **Default**: 1 label per QR code
+- **Custom**: Set different quantities per QR code
+- **Range**: 1 to 500 labels per QR code
+- **Purpose**: Print multiple labels if you have multiple physical items
+
+**Quick Set Feature**:
+
+- Select multiple QR codes
+- Set a quantity (e.g., 10)
+- Click "Apply" to set same quantity for all selected
+- Saves time when setting quantities for many QR codes
+
+#### Step 2: Filter and Select
+
+**Filter Options**: Narrow down which QR codes to print
+
+- **Color Filter**: Show only QR codes for specific colors
+- **Size Filter**: Show only QR codes for specific sizes
+- **Type Filter**: Show only QR codes for specific custom types
+- **Value Filter**: Show only QR codes for specific values
+
+**Selection Options**:
+
+- **Select All**: Select all filtered QR codes for printing
+- **Select Individually**: Click checkboxes to choose specific QR codes
+- **Clear Selection**: Deselect all
+
+**Display**:
+Each QR code in the list shows:
+
+- Checkbox for selection
+- Color swatch (if applicable)
+- Variant name and details
+- Input field for quantity
+- Selected state highlighting
 
 #### Step 3: Print Labels
 
-- Set print quantity per QR code (default: 1)
-- Filter QR codes by color/size/type
-- Select specific QR codes or print all
-- Print thermal labels (50mm x 25mm format)
+**Print All**: Print labels for all visible QR codes
 
-### Label Specifications
+- Uses quantities you've set
+- Opens print dialog in new window
+- Generates label for each quantity
 
-#### Thermal Label Format
+**Print Selected**: Print labels only for checked QR codes
 
-- **Dimensions**: 50mm x 25mm
-- **Orientation**: Landscape
-- **Layout**: QR code left, product info right
+- Useful when you want specific variants only
+- Saves paper and time
+- Opens print dialog with selected items only
 
-#### Label Content
+### Label Format and Appearance
+
+**Thermal Label Specifications**:
+
+- **Size**: 50mm x 25mm (standard thermal label)
+- **Orientation**: Landscape (wider than tall)
+- **Layout**: QR code on left, product info on right
+
+**Label Content**:
 
 ```
 ┌────────────────────────────────────┐
 │                                │
-│   [QR Code Area - 48% width]  │  Product Name
-│                                │    SIZE
-│   Product Information - 50% width  COLOR
+│   [QR Code - 48% of width]     │  Product Name
+│                                │     SIZE
+│   Product Info - 50% of width   COLOR
 │                                │
 └────────────────────────────────────┘
 ```
 
-#### Label Details
-
-- **QR Code**: 21mm x 21mm, unique identifier
-- **Product Name**: 8px bold, truncated if long
-- **Size**: 16px black, uppercase, letter spacing
-- **Color**: 9px bold, uppercase, letter spacing
-
-### Print Features
-
-#### Quantity Control
-
-- **Default**: 1 label per QR code
-- **Custom**: Set quantity 1-500 per QR code
-- **Quick Set**: Apply same quantity to selected QR codes
-- **Individual**: Set different quantities per QR code
-
-#### Filtering
-
-- **Color filter**: Show only specific colors
-- **Size filter**: Show only specific sizes
-- **Type/Value filter**: For custom variants
-- **Combine filters**: Multiple filters active simultaneously
-
-#### Selection
-
-- **Select All**: Select all visible QR codes
-- **Select Individually**: Click checkboxes to select
-- **Clear Selection**: Deselect all
-- **Print Selected**: Print only selected QR codes
-- **Print All**: Print all QR codes (if none selected)
-
-#### Print Summary
-
-- **Total labels**: Sum of all quantities
-- **Selected count**: Number of QR codes selected
-- **Total selected labels**: Labels from selected QR codes
-
-### Technical Implementation
-
-#### QR Code Generation
-
-```typescript
-const generateBarcodes = async () => {
-  for (const assignmentId of selectedAssignments) {
-    const variant = variants.find((v) => v.assignmentId === assignmentId);
-
-    const timestamp = Date.now();
-    const uniqueCode = `${product.code}-${variant.id}-${timestamp}`;
-
-    const barcodeData = {
-      barcodeValue: uniqueCode,
-      productId: product.id,
-      productVariantAssignmentId: assignmentId,
-      currentLocation: "MAIN_STOCK",
-      trackingType: "STANDARD",
-    };
-
-    await db.barcode.create({
-      data: barcodeData,
-    });
-  }
-};
-```
-
-#### Print Layout
-
-Generated HTML with inline CSS:
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <style>
-      @page {
-        size: 50mm 25mm;
-        margin: 0;
-      }
-      .label {
-        width: 50mm;
-        height: 25mm;
-        page-break-after: always;
-        display: flex;
-      }
-      .qr-placeholder {
-        width: 21mm;
-        height: 21mm;
-      }
-    </style>
-    <script src="qrcode-generator.js"></script>
-  </head>
-  <body>
-    <div class="label">
-      <div class="qr-placeholder" data-code="UNIQUE-CODE"></div>
-      <div class="info-section">
-        <div class="product-name">Product Name</div>
-        <div class="size-display">SIZE</div>
-        <div class="color-display">COLOR</div>
-      </div>
-    </div>
-  </body>
-</html>
-```
+**QR Code Area** (left side):
 
-#### QR Code Rendering
+- 21mm x 21mm square
+- Contains unique identifier
+- Scannable by any QR code reader
+- High contrast for reliable scanning
 
-Uses `qrcode-generator` library:
+**Product Info Area** (right side):
 
-- Client-side QR generation
-- SVG format for high quality
-- Configurable size and error correction
-- Renders in new print window
+- **Product Name**: Bold, truncated if too long (e.g., "Cotton T-S...")
+- **Size**: Large, bold, uppercase (e.g., "LARGE")
+- **Color**: Medium, bold, uppercase (e.g., "RED")
+- **Text Style**: Arial Black or similar bold font
 
-## Stock Overview
+### Printing Process
 
-### Stock Summary Card
+**What Happens When You Click Print**:
 
-Shows key inventory metrics:
+1. New browser window opens with print preview
+2. System generates HTML for all labels
+3. QR codes render as SVG graphics
+4. Print dialog appears automatically
+5. Select your thermal printer
+6. Print labels
 
-- **Total Stock**: All inventory across locations
-- **Total Reserved**: Reserved for customer orders
-- **Total Available**: Ready for sale
-- **Variant Count**: Number of variant assignments
-- **Color Count**: Unique color variants
-- **Barcode Count**: Total QR codes generated
-- **Warehouse Count**: Warehouses with stock
+**Print Preview**:
 
-### Stock by Location
+- Shows exact layout of labels
+- One label per page (50mm x 25mm)
+- Preview QR codes as they'll print
+- Verify before printing
 
-- **Main Stock**: Primary warehouse inventory
-- **Warehouse Stock**: Multiple warehouse locations
-- **Reserved Stock**: Allocated to orders
-- **Available Stock**: Ready for fulfillment
+**After Printing**:
 
-## Variant Details Table
+- Labels are ready to attach to products
+- Peel and stick on physical items
+- Scan to verify QR codes work
+- Update inventory when items are received
 
-### Table Columns
+## Business Workflow Examples
 
-1. **Variant**: Color/size or custom type
-2. **SKU**: Variant code
-3. **Main Stock**: Primary warehouse quantity
-4. **Warehouse Stock**: Other locations
-5. **Total Stock**: Combined stock
-6. **Reserved**: Reserved for orders
-7. **Available**: Ready for sale
-8. **Barcodes**: QR code count
-9. **Status**: Active/inactive
-10. **Actions**: Manage stock, generate barcode
+### Scenario 1: New Product Arrival with QR Codes
 
-### Table Features
+1. **Create product**: Add new product with variants
+2. **Generate QR codes**: Select all variants, generate codes
+3. **Print labels**: Set quantity to match physical items
+4. **Attach labels**: Stick labels on each physical item
+5. **Scan to receive**: Scan QR codes when items arrive in warehouse
+6. **Stock updated**: Inventory automatically updated
 
-- **Sortable columns**: Click to sort
-- **Filter variants**: Search by name/SKU
-- **Status indicators**: Color-coded badges
-- **Bulk actions**: Select multiple variants
-- **Row expansion**: View variant details
+### Scenario 2: Restock Existing Product
 
-## Media Display
+1. **Go to product details**: Navigate to product page
+2. **View stock levels**: Check current inventory
+3. **Generate additional barcodes**: Create new QR codes for new items
+4. **Print labels**: Print labels for restock quantity
+5. **Scan on arrival**: Scan QR codes when new stock arrives
+6. **Stock incremented**: Inventory increases automatically
 
-### Image Gallery
+### Scenario 3: Print Labels for Specific Variants
 
-- **Main image**: Large display of first image
-- **Thumbnails**: Grid of all images
-- **Navigation**: Click thumbnails to switch main image
-- **Fullscreen**: Click to view fullscreen
-- **Responsive**: Adapts to screen size
+1. **Filter variants**: Use color/size filters to show only needed variants
+2. **Select variants**: Choose variants you need labels for
+3. **Set quantities**: Enter label quantity per variant (e.g., 50 each)
+4. **Print selected**: Click "Print Selected" for only filtered items
+5. **Attach and scan**: Apply labels and scan to verify
 
-### Video Player
+### Scenario 4: Reprint Damaged Labels
 
-- **Embed**: Native HTML5 video player
-- **Controls**: Play, pause, volume, fullscreen
-- **Responsive**: Adapts to container
-- **Autoplay**: Starts when viewed
+1. **Find product**: Go to product details page
+2. **View existing QR codes**: See all generated codes
+3. **Filter to specific variant**: Find the variant needing new labels
+4. **Set quantity**: Enter number of labels needed
+5. **Print selected**: Print only that QR code's labels
+6. **Replace and verify**: Replace damaged labels, scan to confirm
 
-## Technical Implementation
+## Inventory Management Tips
 
-### Component Hierarchy
+### Regular QR Code Management
 
-```
-ProductDetailPage (Server)
-  ├── ProductImageGallery
-  ├── ProductDetailTabs
-  │   ├── Overview Tab
-  │   ├── Pricing Tab
-  │   ├── Stock Tab
-  │   └── Metadata Tab
-  ├── ProductVariantsTable
-  └── BarcodeGenerator
-      ├── QR Code Generation Card
-      └── Generated QR Codes Card
-```
-
-### Key Components
-
-#### ProductImageGallery
-
-Displays product images and video:
-
-- Image carousel/main display
-- Thumbnail grid
-- Video player
-- Lightbox functionality
-
-#### ProductDetailTabs
-
-Tabbed interface for product information:
-
-- Overview: Basic product details
-- Pricing: Price breakdown
-- Stock: Inventory data
-- Metadata: Additional fields
-
-#### ProductVariantsTable
-
-Shows all variant assignments:
-
-- Sortable table
-- Stock levels per variant
-- QR code counts
-- Action buttons
-
-#### BarcodeGenerator
-
-QR code generation and printing:
-
-- Select variants to generate
-- Generate QR codes
-- Set print quantities
-- Filter and select for printing
-- Print thermal labels
-
-#### BarcodeRenderer
-
-Renders QR codes using library:
-
-- SVG-based rendering
-- Configurable size
-- Error correction level
-- Display value option
-
-## Permissions
-
-### Required Permissions
-
-- `products:view` - View product details
-- `products:update` - Generate barcodes
-
-### Permission Gates
-
-```typescript
-<PermissionGate permission="products:update">
-  <Button>Generate Barcodes</Button>
-</PermissionGate>
-```
-
-## Caching Strategy
-
-### Product Detail Cache
-
-```typescript
-{
-  revalidate: 10,  // 10 seconds
-  tags: [`product-${id}`, "products", "stock"]
-}
-```
-
-### Cache Tags
-
-- `product-${id}`: Specific product
-- `products`: All products
-- `stock`: Inventory data
-
-## Best Practices
-
-### QR Code Generation
-
-- Generate QR codes after product creation
-- Generate one per variant assignment
+- Generate QR codes when creating products
+- Generate new codes when adding variants
 - Print labels immediately after generation
-- Store labels in safe location
-- Keep backup of QR codes
+- Keep backup of QR codes (screenshot or print)
 
-### Label Printing
+### Stock Monitoring
 
-- Use thermal printer (50mm x 25mm)
-- Test print settings first
-- Print in batches for efficiency
-- Verify QR code quality
-- Attach labels to products immediately
-
-### Stock Management
-
-- Monitor stock levels regularly
-- Use barcodes for inventory scanning
-- Update stock after movements
-- Track reserved vs available stock
-- Maintain accurate counts
+- Check stock summary regularly
+- Pay attention to low stock warnings
+- Restock before running out
+- Use barcodes for accurate tracking
 
 ### Label Quality
 
 - Use high-quality thermal paper
-- Ensure QR codes are scannable
-- Test with barcode scanner
-- Keep print heads clean
-- Replace worn labels
+- Ensure QR codes are clearly printed
+- Test labels with your barcode scanner
+- Replace worn or damaged labels
+- Keep label printer maintained
+
+### Scanning Best Practices
+
+- Scan QR codes when items move locations
+- Scan when items arrive (receiving)
+- Scan when items ship (outbound)
+- Scan for inventory counts (stock takes)
+- Scan to identify products (lookups)
+
+## Understanding Stock Levels
+
+### Total Stock
+
+- All physical inventory across all warehouses
+- Includes main warehouse and other locations
+- Shows how much you have in total
+
+### Reserved Stock
+
+- Quantity allocated to open customer orders
+- Not available for new orders
+- Decreases when orders ship
+
+### Available Stock
+
+- Total stock minus reserved stock
+- Ready for new customer orders
+- The quantity sellers can order
+- Most important metric for planning
+
+### Location-Based Stock
+
+- **Main Stock**: Primary warehouse inventory
+- **Warehouse Stock**: Other locations (satellite warehouses)
+- Track stock per location for better planning
+- Transfer stock between locations as needed
 
 ## Common Issues
 
@@ -509,110 +441,120 @@ Renders QR codes using library:
 
 **Possible causes**:
 
-- Network error
-- Database connection issue
-- Variant assignment not found
+- Network connection issue
+- System error
+- Variant not found
 - Permission denied
 
 **Solutions**:
 
-- Check network connection
-- Verify permissions
-- Refresh page and retry
-- Check variant assignments exist
+- Check internet connection
+- Refresh the page and try again
+- Verify variant assignments exist
+- Check your permissions
 
-### Print Window Not Opening
+### Print Window Won't Open
 
 **Possible causes**:
 
 - Popup blocker enabled
-- Browser security setting
+- Browser security settings
 - JavaScript disabled
 
 **Solutions**:
 
 - Allow popups for this site
 - Check browser settings
-- Use different browser
-- Disable popup blocker temporarily
+- Try different browser
+- Temporarily disable popup blocker
 
-### QR Codes Not Scannable
+### QR Codes Won't Scan
 
 **Possible causes**:
 
-- Print quality issue
+- Print quality too low
 - QR code too small
 - Paper not suitable
-- Print head dirty
+- Label damaged
 
 **Solutions**:
 
-- Use higher print quality
-- Ensure correct label size
-- Use thermal paper
-- Clean print heads
-- Test with scanner
+- Use higher print quality settings
+- Ensure correct label size (50mm x 25mm)
+- Use thermal paper for best results
+- Clean scanner lens
+- Test with multiple scanners
 
-### Stock Summary Incorrect
+### Stock Summary Wrong
 
 **Possible causes**:
 
 - Cache not refreshed
 - Database sync delay
-- Concurrent updates
+- Concurrent updates by other users
 
 **Solutions**:
 
-- Refresh page
-- Check database directly
-- Wait for sync
-- Contact support
+- Refresh the page
+- Wait for database sync
+- Check if other users updated stock
+- Contact support if issue persists
 
 ## Data Integrity
 
 ### QR Code Uniqueness
 
-- Each QR code is globally unique
-- Based on product code, variant ID, timestamp
-- No duplicate QR codes in system
-- Stored in database with references
+- Each QR code is globally unique in the system
+- Based on product code, variant ID, and timestamp
+- No duplicate QR codes can exist
+- System prevents duplicate generation
 
-### Barcode Tracking
+### Inventory Accuracy
 
-- Each barcode has current location
-- Tracks movement: MAIN_STOCK → WAREHOUSE → SOLD
-- History of movements preserved
-- Can trace inventory items
+- Stock levels updated via QR code scanning
+- Reserved stock tracked separately from physical stock
+- Location-based stock tracking
+- Real-time inventory updates
 
-### Stock Accuracy
+### Tracking History
 
-- Stock levels updated via barcodes
-- Reserved stock tracked separately
-- Warehouse stocks distinguished
-- Real-time inventory data
+- All QR code scans are logged
+- Movement history preserved
+- Audit trail for inventory
+- Can trace when items moved
 
-## Related Files
+## Permissions
 
-### Page Components
+This page requires:
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/page.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/_components/product-image-gallery.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/_components/product-detail-tabs.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/_components/product-variants-table.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/_components/barcode-generator.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/_components/barcode-renderer.tsx`
+- **products:view**: View product details and inventory
+- **products:update**: Generate barcodes and manage stock
 
-### Server Actions
+## Tips for Efficient Use
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/_lib/queries.ts`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/_lib/actions.ts`
+### Quick Navigation
 
-### Types
+- Use tabbed interface to jump between information sections
+- Use search within variants table to find specific variants
+- Use keyboard navigation if enabled
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/types.ts`
+### Regular Reviews
+
+- Check product details regularly for accuracy
+- Review stock levels and plan restocks
+- Generate QR codes for new items immediately
+- Print labels in batches for efficiency
+
+### Barcode Management
+
+- Generate QR codes as soon as product is created
+- Print labels right after generation
+- Keep backup of QR codes
+- Label physical items promptly
+- Scan to verify labels work
 
 ## Next Steps
 
-- Learn about [Product List](./product-list.md)
-- Learn about [Product Creation](./product-creation.md)
-- Learn about [Product Edit](./product-edit.md)
+- Return to [Product List](./product-list.md) to browse products
+- Edit product information on the [Product Edit](./product-edit.md) page
+- Create new products on the [Product Creation](./product-creation.md) page

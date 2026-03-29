@@ -2,523 +2,365 @@
 
 ## Overview
 
-The Product Creation page allows administrators to add new products to the marocAffiliate platform with all required information, pricing, variants, and media.
-
-## Location
-
-`/src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/page.tsx`
+The Product Creation page is where you add new products to the marocAffiliate platform. This is the starting point for getting any product into your inventory and making it available to sellers.
 
 ## Purpose
 
-Create new products with complete information including basic details, pricing, media, settings, and variant assignments.
+This page helps you:
 
-## Page Structure
+- Create new products with all necessary information
+- Set up pricing across different sales channels
+- Upload product images and videos
+- Configure who can see and sell the product
+- Associate product variants (colors, sizes, etc.)
+- Make products available to sellers
 
-### Form Sections
+## What You'll Fill Out
 
-#### 1. Basic Information Card
+### Step 1: Basic Information
 
-Contains essential product details:
+**Product Name**: Give your product a clear, descriptive name.
 
-- **Name**: Product name (required, auto-generates code)
-- **Provider**: Select from available providers
-- **Category**: Product category classification
-- **Rating**: 0-5 stars rating system
-- **Description**: Rich text editor for detailed product description
+- Keep it concise but informative
+- Use standard industry terminology
+- Include key features (e.g., "Cotton T-Shirt", "Wireless Earbuds")
+- This name appears everywhere (store, orders, invoices)
 
-##### Auto-Generated Code
+**Provider**: Select who provides this product.
 
-When product name is entered, a unique product code is automatically generated:
+- Choose from your list of registered providers
+- Providers are your suppliers or manufacturers
+- This helps track where products come from
 
-```typescript
-Format: {
-  NAME;
-}
--{ TIMESTAMP };
-Example: T - SHIRT - ABC123456;
-```
+**Category**: Choose the product category.
 
-#### 2. Pricing Card
+- Organizes products in your catalog
+- Helps sellers browse products
+- Examples: Clothing, Electronics, Home & Garden
+- Choose the most appropriate category
 
-Contains all price fields:
+**Rating**: Set a quality rating (0-5 stars).
 
-- **Buy Price**: Cost to acquire product (required)
-- **Selling Price**: Standard selling price for customers (required)
-- **Old Price**: Original price (for discounts/marketing)
-- **POS Price**: Point of Sale price for in-store sales
-- **Warehouse Price**: Internal warehouse price
-- **Special Seller Pricing**: Custom prices for specific sellers
+- 0 stars: No rating
+- 1-2 stars: Low quality
+- 3 stars: Average quality
+- 4-5 stars: High quality
+- This helps sellers and customers understand product quality
 
-##### Special Seller Pricing
+**Description**: Write a detailed product description.
 
-Assign custom prices to specific sellers:
+- Use the rich text editor for formatting
+- Include key features and benefits
+- Mention materials, dimensions, specifications
+- Add care instructions if relevant
+- This description appears on seller-facing product pages
 
-- Select seller from dropdown
-- Enter custom price
-- Click "Add" to add to list
-- Remove entries with X button
-- Multiple special prices supported
+**What Happens Automatically**: The system generates a unique product code based on the name. You don't need to create one manually.
 
-#### 3. Media Card
+### Step 2: Pricing
 
-Upload product images and videos:
+Set prices for different sales channels and purposes.
 
-- **Images**: Multiple product images via UploadThing
-- **Video**: Product video (optional, max one)
+**Buy Price**: How much you pay to acquire this product.
 
-##### Image Upload
+- This is your cost
+- Used for profit calculations
+- Keep this accurate for financial reporting
 
-- Drag and drop support
-- Multiple images allowed
-- Image preview thumbnails
-- Remove individual images
-- Reorder images (drag to reorder)
+**Selling Price**: How much sellers (and their customers) pay.
 
-##### Video Upload
+- This is the standard retail price
+- Should include your profit margin
+- This price appears in the seller store
 
-- Single video upload
-- Video preview player
-- Video validation (size, format)
+**Old Price**: Original price before discount (optional).
 
-#### 4. Settings Card
+- Use this for sales and promotions
+- Shows crossed-out price to highlight discount
+- Helps with marketing and perceived value
 
-Product visibility and access control:
+**POS Price**: Price for in-store point-of-sale (POS) systems.
 
-- **Minimum Seller Type**: Who can see the product (NORMAL/PRO/VIP)
-- **Variant Type**: Product variant system (NONE/COLOR_SIZE/CUSTOM)
-- **Public/Private**: Visibility to sellers
-- **Allowed Sellers**: Select specific sellers if not public
+- Different from online price if you have physical stores
+- Can be higher or lower depending on store strategy
+- Used only for POS transactions, not online orders
 
-##### Visibility Logic
+**Warehouse Price**: Internal price for inventory management.
 
-```typescript
-if (isPublic) {
-  // Product visible to all sellers meeting minimum type
-} else {
-  // Product visible only to selected sellers
-}
-```
+- Used for internal tracking and valuation
+- Not visible to sellers or customers
+- Helps with inventory accounting
 
-#### 5. Product Variants Card
+**Special Seller Pricing**: Set custom prices for specific sellers.
 
-Associate existing variants with the product:
+- Select a seller from the dropdown
+- Enter a custom price for that seller
+- Useful for wholesale or special arrangements
+- Add multiple seller-specific prices as needed
+- Remove entries by clicking the X button
 
-- Select variant type (NONE/COLOR_SIZE/CUSTOM)
-- Fetch available variants for selected type
-- Select multiple variants to assign
-- Refresh button to reload variants
-- Color swatches for visual variant selection
+**Business Impact**: Pricing affects:
 
-##### Variant Selection Flow
+- Your profit margins
+- Seller willingness to stock the product
+- Customer purchase decisions
+- Competitive positioning
 
-1. Select variant type from dropdown
-2. Variants load automatically based on type
-3. Use multi-select to choose variants
-4. Selected variants shown as badges with details
-5. Clear all with "Clear All" button
+### Step 3: Media (Images & Video)
 
-##### Variant Display
+Upload visual content to showcase your product.
 
+**Images**: Add multiple product images.
+
+- Drag and drop images or click to select files
+- Upload as many images as needed (at least one required)
+- Best practices:
+  - Use high-quality, well-lit photos
+  - Show product from multiple angles
+  - Include lifestyle shots if relevant
+  - Maintain consistent image sizes
+  - Use transparent backgrounds for cleaner look
+- You can reorder images by dragging them
+- Remove images by clicking the X button
+
+**Video**: Add a product video (optional).
+
+- Upload a video file (MP4, WEBM recommended)
+- Videos are great for complex products
+- Show how the product works
+- Demonstrate features in action
+- Maximum file size applies (typically 100MB)
+
+**Business Impact**: Good media:
+
+- Increases seller confidence
+- Improves conversion rates
+- Reduces returns (customers see what they're getting)
+- Enhances brand perception
+
+### Step 4: Settings
+
+Configure product visibility and access.
+
+**Minimum Seller Type**: Who can see this product.
+
+- **Normal**: All sellers can view and order
+- **Pro**: Only Pro-level sellers can see it
+- **VIP**: Only VIP-level sellers can see it
+- Use this for premium or exclusive products
+- Helps manage product availability by seller tier
+
+**Variant Type**: How product variations are organized.
+
+- **None**: Single-SKU product (no variations)
+- **Color/Size**: Product has color and size variations
+- **Custom**: Product has custom variation types (e.g., Material, Length)
+- Choose based on your product's actual variations
+
+**Public/Private**: Visibility scope.
+
+- **Public**: Product is visible to all eligible sellers
+- **Private**: Product is visible only to specific sellers you select
+
+**Allowed Sellers**: If Private, select specific sellers.
+
+- Use the multi-select to choose sellers
+- Only selected sellers will see the product
+- Useful for exclusive products or special arrangements
+- Add or remove sellers as needed
+
+**Business Impact**: Access control:
+
+- Manages seller relationships
+- Protects exclusive products
+- Enables targeted sales strategies
+- Helps with supplier agreements
+
+### Step 5: Product Variants
+
+Associate existing variants with your product.
+
+**What are Variants?**
+Variants are different versions of the same product:
+
+- **Color/Size variants**: Red-Large, Blue-Small, etc.
+- **Custom variants**: Cotton-Medium, Wool-Large, etc.
+- Variants allow you to track inventory per variation
+- Each variant has its own SKU and stock
+
+**How to Assign Variants**:
+
+1. Select the variant type (None/Color/Size/Custom)
+2. Click the refresh button to load available variants
+3. Select variants from the dropdown
+4. Selected variants appear as badges with details
+5. Click the X to remove a variant
+
+**Variant Display**:
 Each selected variant badge shows:
 
-- Variant name
+- Variant name (e.g., "Red-Large")
 - SKU code
-- Description (color/size or custom type/value)
-- Color swatch (if applicable)
+- Color swatch (for color variants)
 - Remove button
 
-## Form Validation
+**Business Impact**: Variants:
 
-### Zod Schema
+- Enable accurate inventory tracking
+- Allow detailed sales reporting
+- Help sellers choose specific versions
+- Reduce overstock/understock issues
 
-Uses `createProductSchemaRefined` with comprehensive validation:
+## Creating the Product
 
-#### Required Fields
+### Review Before Submitting
 
-```typescript
-{
-  name: string,              // Product name (min length: 3)
-  code: string,              // Auto-generated, must be unique
-  categoryId: number,         // Category must be selected
-  providerId: string,        // Provider must be selected
-  buyPrice: number,          // Must be positive
-  sellingPrice: number,      // Must be positive
-  images: array,            // At least one image required
-  variantType: enum,        // Valid variant type
-  minimumSellerType: enum    // Valid seller type
-}
-```
+Before clicking "Create Product":
 
-#### Price Validation
+- Check that all required fields are filled
+- Verify prices are reasonable and include your margin
+- Ensure at least one image is uploaded
+- Confirm variant selections make sense for your product
+- Double-check spelling and formatting
 
-- All prices must be positive numbers
-- Selling price should be greater than buy price
-- POS and warehouse prices can be zero
-- Special seller prices must be positive
+### Submit the Form
 
-#### Variant Validation
+Click the "Create Product" button at the bottom. The system will:
 
-- If variantType is NONE, no variants selected
-- If variantType is COLOR_SIZE, at least one variant required
-- If variantType is CUSTOM, at least one variant required
-- Variant must exist in database
+- Validate all information
+- Create the product in the database
+- Save all images and associate with the product
+- Link selected variants
+- Save special seller prices
+- Set up the product in the inventory system
 
-#### Media Validation
+### What Happens Next
 
-- At least one image required
-- Maximum file size limits
-- Supported formats: JPG, PNG, GIF, WEBP
-- Video: MP4, WEBM (max 100MB)
+If creation is successful:
 
-## Form State Management
+- You'll see a success message
+- You'll be redirected to the Product List page
+- The product is immediately available to eligible sellers
+- You can click "Edit" to make changes
 
-### React Hook Form
+If creation fails:
 
-Uses React Hook Form with Zod resolver:
+- You'll see error messages explaining what's wrong
+- The form preserves your entries so you can fix issues
+- Common issues: missing fields, invalid prices, no images
 
-```typescript
-const methods = useForm<CreateProductInput>({
-  resolver: zodResolver(createProductSchemaRefined),
-  defaultValues: {
-    name: "",
-    code: "",
-    providerId: "",
-    categoryId: 0,
-    buyPrice: 0,
-    sellingPrice: 0,
-    posPrice: 0,
-    wareHousePrice: 0,
-    images: [],
-    video: [],
-    description: "",
-    ratingStars: 0,
-    minimumSellerType: SellerType.NORMAL,
-    variantType: VariantType.COLOR_SIZE,
-    isPublic: true,
-    allowedSellerIds: [],
-    productVariantIds: [],
-    specialSellerPricing: [],
-  },
-});
-```
-
-### State Sync
-
-Form state synced with UI components:
-
-```typescript
-// Auto-generate code from name
-useEffect(() => {
-  const subscription = methods.watch((value, { name }) => {
-    if (name === "name" && value.name) {
-      const generatedCode = `${value.name
-        .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "")
-        .slice(0, 10)}-${Date.now().toString().slice(-6)}`;
-      methods.setValue("code", generatedCode);
-    }
-  });
-  return () => subscription.unsubscribe();
-}, [methods]);
-
-// Sync variant selections
-useEffect(() => {
-  methods.setValue("productVariantIds", selectedVariants, {
-    shouldValidate: true,
-  });
-}, [selectedVariants, methods]);
-```
-
-## Variant Management
-
-### Fetching Variants
-
-Variants are fetched based on selected type:
-
-```typescript
-const variantType = methods.watch("variantType");
-
-useEffect(() => {
-  async function fetchVariantsByType() {
-    if (!variantType) return;
-    setLoadingVariants(true);
-    setSelectedVariants([]); // Clear selections when type changes
-
-    try {
-      const result = await getProductVariantsByType(variantType);
-      if (result.success && result.productVariants) {
-        setFilteredVariants(result.productVariants);
-      }
-    } finally {
-      setLoadingVariants(false);
-    }
-  }
-  fetchVariantsByType();
-}, [variantType]);
-```
-
-### Variant Types
-
-#### NONE
-
-- No variants
-- Single SKU product
-- No variant selection required
-
-#### COLOR_SIZE
-
-- Color and size combinations
-- Each variant has color and size
-- Color swatches for visual selection
-- Example: "Red - Large"
-
-#### CUSTOM
-
-- Custom variant types
-- Flexible variant system
-- Custom type and value pairs
-- Example: "Material: Cotton"
-
-## Submission Process
-
-### Form Submission
-
-Uses React transitions for optimistic updates:
-
-```typescript
-const onSubmit = async (data: CreateProductInput) => {
-  // Validate form
-  const validationResult = createProductSchemaRefined.safeParse(data);
-  if (!validationResult.success) {
-    toast.error("Validation failed");
-    return;
-  }
-
-  startTransition(async () => {
-    try {
-      const result = await createProductAction(data);
-      if (result.success) {
-        toast.success("Product created successfully");
-        router.push("/dashboards/admin/products");
-      } else {
-        toast.error(result.error);
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
-  });
-};
-```
-
-### Server Action
-
-The `createProductAction` handles:
-
-- Transaction management
-- Product creation
-- Variant assignments
-- Price mappings
-- Image/video processing
-- Database relationships
-
-### Success Flow
-
-1. Form validation passes
-2. Server action executes
-3. Product created in database
-4. Variants assigned
-5. Images uploaded and linked
-6. Success toast displayed
-7. Redirect to product list
-
-### Error Handling
-
-- Validation errors show inline
-- Server errors show toast messages
-- Form state preserved on error
-- User can retry submission
-
-## Form Options
-
-### Data Fetching
-
-Page fetches form options on load:
-
-```typescript
-const [dictionary, options] = await Promise.all([
-  getDictionary(locale),
-  getProductFormOptions(),
-]);
-```
-
-### Available Options
-
-```typescript
-{
-  providers: User[],           // Available product providers
-  categories: Category[],       // Product categories
-  sellers: User[],             // Active sellers
-  productVariants: ProductVariant[]  // Available variants
-}
-```
-
-## Permissions
-
-### Required Permissions
-
-- `products:create` - Access create page and submit form
-
-### Permission Gate
-
-```typescript
-<PermissionGate permission="products:create">
-  <Link href="/dashboards/admin/products/new">
-    <Button>Create Product</Button>
-  </Link>
-</PermissionGate>
-```
-
-## Technical Implementation
-
-### Component Hierarchy
-
-```
-CreateProductPage (Server)
-  └── CreateProductPageContent (Client)
-      ├── ProductCreateForm
-      └── StandaloneVariantCreator
-```
-
-### Key Components
-
-#### ProductCreateForm
-
-Main form component with all fields:
-
-- Form state management
-- Validation
-- Submission handling
-- Error handling
-
-#### StandaloneVariantCreator
-
-Separate variant creation component:
-
-- Create new variants on-the-fly
-- Refresh variant list after creation
-- Independent from main form
-
-#### UploadComponent
-
-File upload component using UploadThing:
-
-- Drag and drop
-- File preview
-- Progress indicators
-- Error handling
-
-#### RichTextEditor
-
-WYSIWYG editor for product descriptions:
-
-- Text formatting
-- Lists
-- Links
-- Images
-
-## Best Practices
+## Business Best Practices
 
 ### Product Naming
 
 - Use clear, descriptive names
-- Auto-generated codes based on name
-- Keep names concise for code readability
+- Include key product attributes in the name
+- Keep names consistent across similar products
+- Avoid internal codes or abbreviations that sellers won't understand
 
 ### Pricing Strategy
 
-- Set buy price first
-- Selling price should include margin
-- Old price for discount perception
-- POS price for in-store sales
-- Warehouse price for internal tracking
-
-### Variant Management
-
-- Use COLOR_SIZE for clothing/accessories
-- Use CUSTOM for specialized products
-- Use NONE for single-SKU products
-- Refresh variants list if new variants added
+- Research competitor pricing
+- Ensure buy price allows for healthy margins
+- Consider POS vs. online pricing strategy
+- Use old price strategically for promotions
+- Set appropriate special seller prices for wholesale
 
 ### Media Guidelines
 
-- Use high-quality images
-- Multiple angles for products
-- Consistent image dimensions
-- Compress images for faster loading
-- Video for complex products
+- Use professional-quality images
+- Show products from multiple angles
+- Include scale references (e.g., product next to a coin)
+- Demonstrate product features with video if helpful
+- Keep file sizes reasonable for fast loading
+
+### Variant Management
+
+- Only create variants that actually exist in your inventory
+- Use Color/Size for standard variations
+- Use Custom for specialized variations
+- Keep variant names simple and descriptive
+- Refresh variant list if you've created new variants
 
 ### Access Control
 
-- Use PUBLIC for general products
-- Use PRIVATE with selected sellers for exclusive products
-- Set appropriate minimum seller type
-- Consider seller relationships
+- Use Public for standard products
+- Use Private for exclusive or limited-availability products
+- Set appropriate minimum seller type for premium products
+- Communicate product availability changes to affected sellers
 
-## Common Issues
+### Documentation
 
-### Validation Failures
+- Keep detailed product descriptions
+- Update descriptions as product features change
+- Include care instructions when relevant
+- Mention product limitations honestly
 
-- Check required fields are filled
-- Ensure prices are positive numbers
-- Verify at least one image is uploaded
+## Common Scenarios
+
+### Scenario 1: Adding a New Clothing Item
+
+1. **Basic Info**: Name "Cotton T-Shirt - Summer Collection", select Provider "Fashion Co.", choose Category "Clothing", set Rating "4 stars"
+2. **Pricing**: Buy Price $15, Selling Price $35, Old Price $45 (sale), POS Price $35, Warehouse Price $15
+3. **Media**: Upload 4 images (front, back, side, detail shot)
+4. **Settings**: Minimum Seller Type "Normal", Variant Type "Color/Size", Public "Yes"
+5. **Variants**: Select "Red-Large", "Red-Medium", "Blue-Large", "Blue-Medium"
+6. **Submit**: Click "Create Product"
+
+### Scenario 2: Adding an Exclusive Product for VIP Sellers
+
+1. **Basic Info**: Name "Luxury Watch - Gold Edition", select Provider, Category "Accessories", Rating "5 stars"
+2. **Pricing**: Buy Price $200, Selling Price $500, No Old Price, POS Price $500, Warehouse Price $200
+3. **Media**: Upload high-quality images and demonstration video
+4. **Settings**: Minimum Seller Type "VIP", Variant Type "None", Public "No"
+5. **Allowed Sellers**: Select "VIP Seller A", "VIP Seller B"
+6. **Variants**: No variants (single SKU)
+7. **Submit**: Click "Create Product"
+
+### Scenario 3: Adding a Product with Wholesale Pricing
+
+1. **Basic Info**: Name "Bulk T-Shirt Pack", Provider, Category "Clothing", Rating "3 stars"
+2. **Pricing**: Buy Price $80, Selling Price $120, Old Price $150, POS Price $120, Warehouse Price $80
+3. **Special Pricing**: Add "Wholesale Seller" at $100 per pack
+4. **Media**: Upload pack images
+5. **Settings**: Normal seller access, public, no variants
+6. **Submit**: Click "Create Product"
+
+## Troubleshooting
+
+### Form Won't Submit
+
+- Check all required fields (marked with red asterisks)
+- Ensure at least one image is uploaded
+- Verify all prices are positive numbers
 - Check variant selections match variant type
 
-### Variant Loading Issues
+### Images Won't Upload
 
-- Click refresh button
-- Check variant type is selected
-- Ensure variants exist in database
-- Network connection issues
-
-### Image Upload Problems
-
-- Check file size limits
-- Verify file format is supported
+- Check file size (reduce if too large)
+- Verify file format (JPG, PNG, WEBP supported)
+- Try different browser
 - Check internet connection
-- Try individual file upload
 
-### Code Generation
+### Variants Not Appearing
 
-- Codes auto-generate from name
-- Timestamp ensures uniqueness
-- Don't manually modify codes
-- Duplicate codes will fail validation
+- Make sure variant type is selected
+- Click "Refresh" button to reload variants
+- Verify variants exist in the system
+- Check if variants were created recently
 
-## Related Files
+### Special Seller Pricing Issues
 
-### Page Components
+- Ensure seller exists in the system
+- Check that price is a positive number
+- Verify seller isn't already in the list
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/page.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/_components/create-product-page-content.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/_components/product-create-form.tsx`
+## Permissions
 
-### Server Actions
-
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/_lib/actions.ts`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/_lib/queries.ts`
-
-### Validation
-
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/_lib/validations.ts`
-
-### Shared Components
-
-- `src/components/rich-text-editor`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/_components/upload.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/new/_components/standalone-variant-creator.tsx`
+This page requires **products:create** permission. Only admin users with this permission can create new products.
 
 ## Next Steps
 
-- Learn about [Product List](./product-list.md)
-- Learn about [Product Edit](./product-edit.md)
-- Learn about [Product Details & Barcodes](./product-details.md)
+- After creating a product, view it in the [Product List](./product-list.md)
+- Edit the product details on the [Product Edit](./product-edit.md) page
+- Generate barcodes on the [Product Details](./product-details.md) page

@@ -2,279 +2,287 @@
 
 ## Overview
 
-The Product List page is the main dashboard for administrators to view, search, filter, and manage all products in the marocAffiliate platform.
-
-## Location
-
-`/src/app/[lang]/(dashboard-layout)/dashboards/admin/products/page.tsx`
+The Product List page is your main dashboard for viewing, searching, and managing all products in the marocAffiliate platform. Think of it as your central inventory control center.
 
 ## Purpose
 
-Provide a comprehensive view of the entire product catalog with advanced filtering and bulk operations.
+This page helps you:
 
-## Key Features
+- See all products at a glance
+- Find specific products quickly
+- Filter products by various criteria
+- Understand product status and stock levels
+- Take bulk actions on multiple products
+- Navigate to product details or edit pages
 
-### Data Display
+## What You'll See
 
-- **Paginated table** with customizable rows per page
-- **Real-time data** with 1-minute cache refresh
-- **Visual indicators** for product status, stock levels, and variants
-- **Sorting capabilities** across all columns
+### Main Table
 
-### Filtering System
+A clean, organized table showing all products with key information:
 
-Products can be filtered by multiple criteria:
+**Image**: Product thumbnail (first image from gallery)
+**Name & Code**: Product name with unique code below it
+**Category**: Which category the product belongs to
+**Status**: Current availability (Available, Out of Stock, Draft, etc.)
+**Variant Type**: How product variants are organized (None, Color/Size, Custom)
+**Variants Count**: How many different variants exist for this product
+**Stock Indicators**: Visual badges showing stock levels
+**Selling Price**: Standard price for customers
+**POS Price**: Price for in-store sales
+**Actions**: Quick buttons to edit or delete the product
 
-#### Text Filters
+### Pagination
 
-- **Search**: Searches across name, code, and description (case-insensitive)
-- **Name**: Exact match on product name
-- **Code**: Exact match on product code
+Products are shown in pages (default: 10 per page). You can:
 
-#### Select Filters
+- Navigate between pages using Previous/Next buttons
+- Change how many products per page (10, 25, 50, 100)
+- Jump to a specific page number
 
-- **Status**: Product availability status (DRAFT, AVAILABLE, OUT_OF_STOCK, etc.)
-- **Category**: Filter by product category
-- **Variant Type**: NONE, COLOR_SIZE, CUSTOM
-- **Minimum Seller Type**: NORMAL, PRO, VIP
-- **Public/Private**: Show only public or private products
+## How to Use This Page
 
-#### Date Range Filter
+### Finding Products
 
-- Filter by creation date with start and end date pickers
-- Date range inclusive of full day (00:00:00 to 23:59:59)
+#### Quick Search
 
-### Data Table Features
+Use the search bar at the top to find products by:
 
-#### Columns
+- **Product name** (e.g., "T-shirt", "Jeans")
+- **Product code** (e.g., "TSHIRT-ABC123")
+- **Description** (e.g., "cotton", "summer")
 
-1. **Image**: Product thumbnail (first image)
-2. **Name & Code**: Product name with code below
-3. **Category**: Product category badge
-4. **Status**: Current availability status
-5. **Variant Type**: Type of product variants
-6. **Variants Count**: Number of variant assignments
-7. **Stock Indicators**: Visual stock level badges
-8. **Selling Price**: Standard selling price
-9. **POS Price**: Point of Sale price
-10. **Actions**: Edit and delete buttons
+The search looks across all these fields simultaneously and shows matching products.
 
-#### Row Selection
+#### Advanced Filters
 
-- Click checkbox to select individual products
-- "Select All" to select all visible products
-- Selection persists across page changes
-- Bulk delete operation on selected products
+Narrow down products using these filters:
 
-#### Sorting
+**Status Filter**: Show only products with specific status
 
-- Default sort: Updated date descending (newest first)
-- Click column headers to sort ascending/descending
-- Multi-column sorting supported
-- Sort indicators show current sort order
+- **Available**: Ready to sell
+- **Out of Stock**: Currently out of inventory
+- **Draft**: Not yet published
+- **Other**: Other status types
 
-### Data Fetching
+**Category Filter**: Show products from specific categories (e.g., "Clothing", "Electronics")
 
-#### Parallel Queries
+**Variant Type Filter**: Show products by variant system
 
-The page fetches multiple data sources in parallel:
+- **None**: Single-SKU products
+- **Color/Size**: Products with color and size options
+- **Custom**: Products with custom variant types
 
-```typescript
-const promises = Promise.all([
-  getProducts(search), // Paginated product list
-  getProductStatusCounts(), // Products by status
-  getProductCategoryCounts(), // Products by category
-  getProductVariantTypeCounts(), // Products by variant type
-]);
-```
+**Seller Type Filter**: Show products based on minimum seller requirement
 
-#### Cache Strategy
+- **Normal**: All sellers can see
+- **Pro**: Only Pro sellers can see
+- **VIP**: Only VIP sellers can see
 
-- **Product list**: 1-minute revalidation
-- **Status counts**: 60-second cache
-- **Category counts**: 5-minute cache
-- **Variant type counts**: 5-minute cache
-- **Cache tags**: `["products", "product-status-counts"]`
+**Public/Private Filter**: Show visibility
 
-### Search Parameters
+- **Public**: Available to all eligible sellers
+- **Private**: Available only to selected sellers
 
-#### Zod Schema Validation
+**Date Range Filter**: Show products created within a specific time period
 
-All search parameters are validated using `getProductsSchema`:
+- **Start Date**: From when (inclusive)
+- **End Date**: To when (inclusive)
 
-```typescript
-{
-  page: number,           // Current page (default: 1)
-  perPage: number,        // Items per page (default: 10)
-  search: string,         // Global search term
-  name: string,           // Product name filter
-  code: string,           // Product code filter
-  status: string[],       // Status filter (array)
-  category: string[],     // Category filter (array)
-  variantType: string[],   // Variant type filter (array)
-  minimumSellerType: string[], // Seller type filter (array)
-  isPublic: string[],     // Public/Private filter (array)
-  createdAt: number[],     // Date range filter
-  sort: string[]          // Sort columns (array)
-}
-```
+### Sorting Products
 
-#### Array Filters
+Click any column header to sort by that column:
 
-Multiple selection filters support both formats:
+- **Click once**: Sort ascending (A-Z, low to high)
+- **Click again**: Sort descending (Z-A, high to low)
+- **Default**: Sorted by "Last Updated" (newest first)
 
-- URL format: `?status=DRAFT,AVAILABLE`
-- Array format: `?status[]=DRAFT&status[]=AVAILABLE`
+Useful sorting scenarios:
 
-### Technical Implementation
+- Sort by **Name** to find products alphabetically
+- Sort by **Selling Price** to see highest/lowest prices
+- Sort by **Variants Count** to find complex products
+- Sort by **Status** to focus on out-of-stock items
 
-#### Prisma Query Building
+### Selecting Products
 
-The `getProducts` function builds complex where clauses:
+#### Individual Selection
 
-```typescript
-// Combine all filters
-if (filters.length > 0) {
-  where.AND = filters;
-}
+Click the checkbox next to each product to select it. Selected products are highlighted.
 
-// Handle date ranges
-if (input.createdAt && input.createdAt.length > 0) {
-  const dateFilter: any = {};
-  if (input.createdAt[0]) {
-    dateFilter.gte = new Date(input.createdAt[0]);
-  }
-  if (input.createdAt[1]) {
-    dateFilter.lte = new Date(input.createdAt[1]);
-  }
-  filters.push({ createdAt: dateFilter });
-}
-```
+#### Select All
 
-#### Sort Handling
+Click the checkbox in the column header to select all products on the current page.
 
-Special handling for nested sorting:
+#### Bulk Selection
 
-```typescript
-if (id === "category") {
-  orderBy.push({ category: { name: desc ? "desc" : "asc" } });
-} else {
-  orderBy.push({ [id]: desc ? "desc" : "asc" });
-}
-```
+Selected products persist across page changes, so you can navigate through multiple pages and select products from each.
 
-### Bulk Operations
+### Taking Actions
 
-#### Delete Products
+#### View Product Details
 
-- Select multiple products using checkboxes
-- Click delete action
-- Confirmation dialog shows selected products
-- Requires `products:delete` permission
-- Soft delete (products marked as deleted, not removed from DB)
+Click on the product name or image to go to the Product Details page where you can see:
 
-### Permissions
+- Full product information
+- All variants and stock levels
+- Generate barcodes
+- View complete history
 
-#### Required Permissions
+#### Edit Product
 
-- `products:view` - View product list (all users)
-- `products:create` - See "Create Product" button
-- `products:delete` - Delete products
+Click the "Edit" button (pencil icon) to modify:
 
-#### Permission Gates
+- Product information (name, description, etc.)
+- Pricing
+- Variants
+- Images and media
+- Seller access
 
-```typescript
-<PermissionGate permission="products:create">
-  <Button>Create Product</Button>
-</PermissionGate>
-```
+#### Delete Product
 
-### UI Components
+Click the "Delete" button (trash icon) to remove a product. You'll see a confirmation dialog showing:
 
-#### Loading State
+- Product name
+- Number of variants
+- Confirmation message
 
-Skeleton loader while data loads:
-
-```typescript
-<React.Suspense fallback={<DataTableSkeleton />}>
-  <ProductsTable promises={promises} />
-</React.Suspense>
-```
-
-#### Data Table Component
-
-Uses TanStack Table with:
-
-- Server-side pagination
-- Client-side filtering (for quick search)
-- Row selection state
-- Column visibility controls
-- Global search across all columns
-
-### Server-Side Processing
-
-#### Query Performance
-
-- Uses Prisma's efficient query builder
-- Includes only necessary relations
-- Implements pagination at database level
-- Caches results to reduce database load
-
-#### Response Format
-
-```typescript
-{
-  data: ProductWithRelations[],  // Product records
-  pageCount: number,            // Total pages
-  totalCount: number             // Total records
-}
-```
-
-### Common Use Cases
-
-#### Find Specific Product
-
-1. Use search bar to search by name/code/description
-2. Apply filters to narrow results
-3. Sort by relevant column
-4. Click on product name to view details
+**Note**: Deleting a product is permanent and removes all associated data.
 
 #### Bulk Delete
 
-1. Select products using checkboxes
-2. Click delete action
-3. Confirm deletion
-4. Products are removed from view
+After selecting multiple products, click the delete button to remove all selected products at once. You'll see a summary of what will be deleted.
 
-#### Monitor Product Status
+## Business Workflow Examples
 
-1. Filter by status (e.g., OUT_OF_STOCK)
-2. Sort by updated date
-3. View stock indicators
-4. Take action on products needing attention
+### Scenario 1: Find Out-of-Stock Products to Restock
 
-### Related Files
+1. Click on the **Status** filter
+2. Select **"Out of Stock"**
+3. Click "Apply Filters"
+4. Review the list of products needing restock
+5. Click on each product to view details and manage inventory
 
-#### Page Component
+### Scenario 2: Review All Clothing Products
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/page.tsx`
+1. Click on the **Category** filter
+2. Select **"Clothing"**
+3. Click "Apply Filters"
+4. Browse through clothing products
+5. Use sorting to find specific items (e.g., by name or price)
 
-#### Data Table
+### Scenario 3: Identify Recently Added Products
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/_components/products-table.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/_components/products-table-columns.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/_components/products-table-action-bar.tsx`
+1. Click on the **"Last Updated"** column header to sort descending
+2. The newest products appear at the top
+3. Review recent additions
+4. Take action on products that need attention
 
-#### Server Actions
+### Scenario 4: Clean Up Old Draft Products
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/_lib/queries.ts`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/_lib/actions.ts`
+1. Click on the **Status** filter
+2. Select **"Draft"**
+3. Sort by **"Last Updated"** descending
+4. Review old drafts
+5. Either complete the product details or delete unused drafts
 
-#### Validation
+## Understanding Product Status
 
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/_lib/validations.ts`
+### Available
 
-### Next Steps
+Product is in stock and ready to sell. Sellers can view and order this product.
+
+### Out of Stock
+
+Product has no available inventory. Sellers can still see it but cannot order until restocked.
+
+### Draft
+
+Product is not yet published. Only admins can see and edit it. Sellers cannot view or order it.
+
+### Other Statuses
+
+Additional statuses may exist depending on your business needs (e.g., "Discontinued", "Coming Soon").
+
+## Understanding Stock Indicators
+
+The product list shows stock badges to help you identify inventory issues:
+
+**Green**: Good stock levels (available)
+**Yellow**: Low stock (consider restocking)
+**Red**: Out of stock (urgent restock needed)
+**Gray**: No stock tracking for this product
+
+## Permissions
+
+This page requires **products:view** permission. All admin users typically have this permission.
+
+Additional actions require:
+
+- **products:create**: See "Create Product" button
+- **products:edit**: Edit products
+- **products:delete**: Delete products
+
+## Tips for Efficient Use
+
+### Quick Navigation
+
+- Use keyboard shortcuts (if enabled) to navigate quickly
+- Bookmark frequently used filters as browser shortcuts
+- Use browser's "Find" (Ctrl+F) to search within the current view
+
+### Monitor Regularly
+
+- Check the product list daily for stock issues
+- Review out-of-stock items and plan restocks
+- Monitor recently added products for completeness
+
+### Bulk Operations
+
+- Use bulk delete carefully (double-check selections)
+- Consider export/import for large-scale changes
+- Use filters to reduce bulk operation scope
+
+### Filter Combinations
+
+- Combine multiple filters for precise results (e.g., "Clothing" + "Out of Stock")
+- Clear filters individually or reset all at once
+- Save frequently used filter combinations as bookmarks
+
+## Common Use Cases
+
+### Daily Inventory Check
+
+1. Filter by **Status: Out of Stock**
+2. Review which products need restocking
+3. Navigate to product details to manage stock
+4. Order restocks as needed
+
+### Product Catalog Review
+
+1. Clear all filters
+2. Sort by **Name** alphabetical
+3. Browse through all products
+4. Check for consistency in naming, pricing, categorization
+5. Make notes for cleanup if needed
+
+### Price Review
+
+1. Clear all filters except **Category**
+2. Sort by **Selling Price** descending
+3. Review most expensive products
+4. Check for pricing errors or inconsistencies
+5. Edit as needed
+
+### New Product Audit
+
+1. Filter by **Date Range: Last 7 Days**
+2. Sort by **Creation Date** descending
+3. Review all recently added products
+4. Verify completeness (images, descriptions, pricing)
+5. Publish any incomplete drafts
+
+## Next Steps
 
 - Learn about [Product Creation](./product-creation.md)
 - Learn about [Product Edit](./product-edit.md)

@@ -2,574 +2,375 @@
 
 ## Overview
 
-The Product Edit page allows administrators to modify existing products while enforcing business rules to prevent data corruption and maintain system integrity.
-
-## Location
-
-`/src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/page.tsx`
+The Product Edit page allows you to modify existing products while protecting important business data. Think of it as maintaining your product catalog while preserving historical records.
 
 ## Purpose
 
-Edit product information with business restrictions based on product's usage history (orders, purchases, stock movements).
+This page helps you:
 
-## Business Restrictions
+- Update product information as needs change
+- Adjust pricing as costs or market conditions change
+- Update images and descriptions
+- Add or remove product variants
+- Manage seller access
+- Correct errors or improve product listings
 
-### Why Restrictions Matter
+## Important: Business Restrictions
 
-Products are linked to critical business data:
+Some product information is **protected** based on business rules. These restrictions prevent data corruption and preserve history.
 
-- **Orders**: Customer purchases reference product codes and variants
+### Why Restrictions Exist
+
+Products are connected to critical business data:
+
+- **Orders**: Customer purchases reference product codes and details
 - **Purchases**: Supplier orders reference original prices
-- **Stock Movements**: Inventory history tracks quantities per variant
+- **Stock Movements**: Inventory history tracks changes over time
 
-Changing certain fields after business transactions would:
+Changing certain fields after these transactions would:
 
-- Break order history
-- Corrupt financial records
+- Break order history and customer records
+- Corrupt financial reporting
 - Invalidate inventory tracking
-- Create audit trail issues
+- Create audit trail problems
 
-### Restriction Categories
+### What Gets Locked
 
-#### Code Locking
+**Product Code**: Locked if product has customer orders
 
-**When Locked**: Product has customer orders
+- Orders reference product codes for invoices, shipping, etc.
+- Cannot be changed once orders exist
+- You'll see a "Protected" badge on this field
 
-**Reason**: Order history contains product codes for:
+**Variant Type**: Locked if product has customer orders
 
-- Order confirmations
-- Invoices
-- Shipping labels
-- Customer communications
-
-**Impact**:
-
-- Product code field becomes read-only
-- Shows "Protected" badge
-- Displays warning about business relations
-
-**Technical Check**:
-
-```typescript
-const hasOrders = product.productVariantAssignments.some(
-  (assignment) => assignment._count.orderItems > 0,
-);
-const canChangeCode = !hasOrders;
-```
-
-#### Variant Type Locking
-
-**When Locked**: Product has customer orders
-
-**Reason**: Orders reference specific variant types:
-
-- COLOR_SIZE orders reference colors/sizes
-- CUSTOM orders reference custom variants
+- Orders reference specific variant types (colors, sizes, etc.)
 - Changing variant type breaks order mapping
+- The variant dropdown becomes disabled
 
-**Impact**:
+### What Shows Warnings
 
-- Variant type dropdown becomes disabled
-- Cannot add new variant types
-- Existing variant assignments remain
+**Price Changes**: Warning if product has purchase orders
 
-**Technical Check**:
+- Purchase orders use original prices for cost tracking
+- Changing prices affects historical financial analysis
+- You'll see a warning message, but can still edit
 
-```typescript
-const hasOrders = product.productVariantAssignments.some(
-  (assignment) => assignment._count.orderItems > 0,
-);
-const canChangeVariantType = !hasOrders;
-```
+**Stock/Variant Changes**: Warning if product has inventory movements
 
-#### Price Change Warnings
+- Stock movements track inventory history
+- Changes affect historical inventory records
+- You'll see a warning to be cautious
 
-**When Warning**: Product has purchase orders
+## Understanding to Alert Banner
 
-**Reason**: Purchase orders use original prices for:
+When restrictions apply, you'll see a warning banner at the top:
 
-- Supplier invoices
-- Cost tracking
-- Profit calculations
-- Financial reporting
+**What It Shows**:
 
-**Impact**:
+- **Shield icon**: Indicates business restrictions are active
+- **Warning messages**: Specific explanation of what's protected
+- **Action items**: What you can and cannot do
 
-- Prices remain editable
-- Warning message displayed
-- Users advised to be careful
-- Historical prices preserved in records
+**Example Messages**:
 
-**Technical Check**:
+- "Product code is locked due to existing orders"
+- "Price changes will affect purchase order history"
+- "Stock movements exist - be careful with variant changes"
 
-```typescript
-const hasPurchases = product.productVariantAssignments.some(
-  (assignment) => assignment._count.purchases > 0,
-);
-```
+## What You Can Edit
 
-#### Stock Movement Warnings
+### 1. Basic Information (Mostly Editable)
 
-**When Warning**: Product has inventory movements
+**Product Name**: Always editable
 
-**Reason**: Stock movements track:
+- Update to correct typos
+- Add or remove details
+- Improve clarity
+- Changes appear everywhere immediately
 
-- Transfer history
-- Adjustment records
-- Physical counts
-- Discrepancy reports
+**Provider**: Always editable
 
-**Impact**:
+- Change supplier if you switch vendors
+- Update contact information
+- Affects purchase history tracking
 
-- Variant assignments remain editable
-- Warning about data integrity
-- Advised to be cautious
-- History preserved
+**Category**: Always editable
 
-**Technical Check**:
+- Recategorize products
+- Improve catalog organization
+- Affects how sellers browse products
 
-```typescript
-const hasStockMovements = product.productVariantAssignments.some(
-  (assignment) => assignment._count.stockMovements > 0,
-);
-```
+**Product Code**: Conditionally editable
 
-## Restriction Alert System
+- **Editable**: No orders exist yet
+- **Locked**: Orders exist (shows "Protected" badge)
+- If locked, you cannot change it
 
-### Alert Banner
+**Variant Type**: Conditionally editable
 
-When any restrictions apply, an alert banner appears at the top:
+- **Editable**: No orders exist yet
+- **Locked**: Orders exist (dropdown disabled)
+- If locked, you must use existing variant type
 
-```typescript
-{
-  canChangeCode: !hasOrders,
-  canChangePrices: true,
-  hasBusinessRelations: hasOrders || hasPurchases || hasStockMovements
-}
-```
+**Rating**: Always editable
 
-### Alert Messages
+- Update based on feedback or quality assessments
+- Helps sellers understand product quality
 
-Banner shows specific restriction messages:
+### 2. Pricing (All Editable, With Warnings)
 
-```typescript
-const restrictionMessages = [
-  !restrictions.canChangeCode
-    ? "Product code is locked due to existing orders"
-    : undefined,
-  hasPurchases ? "Price changes will affect purchase order history" : undefined,
-  hasStockMovements
-    ? "Stock movements exist - be careful with variant changes"
-    : undefined,
-].filter(Boolean);
-```
+All price fields are always editable, but you may see warnings:
 
-### Visual Indicators
+**Buy Price**: Editable (warning if purchases exist)
 
-- **Shield icon** indicates business restrictions
-- **Amber/yellow alert** for warnings
-- **Protected badges** on locked fields
-- **Description text** explaining restrictions
+- Update when supplier costs change
+- Affects profit margins
+- Warning: "Price changes will affect purchase order history"
 
-## Form Sections
+**Selling Price**: Editable (warning if purchases exist)
 
-### 1. Basic Information Card
+- Adjust based on market conditions
+- Respond to competition
+- Warning: "Price changes will affect purchase order history"
 
-Same fields as creation, with restrictions:
+**Old Price**: Always editable
 
-#### Product Name
+- Update for sales and promotions
+- Cross-out price for discount perception
+- Remove when sale ends
 
-- Always editable
-- No restrictions
-- Updates across all records
+**POS Price**: Always editable
 
-#### Provider
+- Adjust for in-store strategy
+- Different from online pricing if needed
+- Affects POS transactions only
 
-- Always editable
-- Changes supplier relationship
-- Updates purchase history
+**Warehouse Price**: Always editable
 
-#### Category
+- Update for inventory valuation
+- Internal pricing only
+- Not visible to sellers
 
-- Always editable
-- Affects product classification
-- Updates category counts
+**Special Seller Pricing**: Fully editable
 
-#### Product Code
+- Add new seller-specific prices
+- Update existing special prices
+- Remove entries by clicking X
+- Edit inline by changing price numbers
 
-**Conditionally editable**:
+### 3. Media (Fully Editable)
 
-- **Editable**: No orders exist
-- **Locked**: Orders exist
-- Shows "Protected" badge when locked
-- Display lock icon
+**Images**: Always editable
 
-#### Variant Type
+- Add new images
+- Remove existing images
+- Reorder images by dragging
+- Replaces current image set
+- Best practice: Keep images consistent
 
-**Conditionally editable**:
+**Video**: Always editable
 
-- **Editable**: No orders exist
-- **Locked**: Orders exist
-- Dropdown disabled when locked
-- Affects variant assignments
-
-#### Rating
-
-- Always editable
-- 0-5 star scale
-- Updates product quality metrics
-
-### 2. Pricing Card
-
-All pricing fields with warnings:
-
-#### Buy Price
-
-- Always editable
-- Warning if purchases exist
-- Updates cost basis
-
-#### Selling Price
-
-- Always editable
-- Warning if purchases exist
-- Affects customer pricing
-
-#### Old Price
-
-- Always editable
-- For discount marketing
-- Optional field
-
-#### POS Price
-
-- Always editable
-- For in-store sales
-- Affects POS transactions
-
-#### Warehouse Price
-
-- Always editable
-- For internal tracking
-- Affects inventory valuation
-
-#### Special Seller Pricing
-
-- Fully editable
-- Add/remove seller prices
-- Update existing prices
-- Edit inline in list
-
-### 3. Media Upload Card
-
-Product images and videos:
-
-#### Images
-
-- Always editable
-- Add/remove images
-- Reorder images
-- Replaces existing images
-
-#### Video
-
-- Always editable
 - Upload new video
-- Replace existing video
-- Remove video
+- Replace current video
+- Remove video entirely
+- Video helps demonstrate complex products
 
-### 4. Product Description Card
+### 4. Product Description (Fully Editable)
 
-Rich text editor:
+- Update with new information
+- Improve clarity and completeness
+- Add features or specifications
+- Fix errors or typos
+- Changes appear on seller pages immediately
 
-- Always editable
-- Full text formatting
-- Updates product pages
-- Affects SEO
+### 5. Access Control (Fully Editable)
 
-### 5. Access Control Card
+**Minimum Seller Type**: Always editable
 
-Visibility settings:
+- Change who can see the product
+- Upgrade or downgrade access level
+- Affects seller visibility immediately
 
-#### Minimum Seller Type
+**Public/Private**: Always editable
 
-- Always editable
-- Changes product visibility
-- Updates seller access
-- May affect sales
+- Switch between public and private
+- Change product visibility scope
+- Affects seller access immediately
 
-#### Public/Private
+**Allowed Sellers**: Editable if product is private
 
-- Always editable
-- Changes visibility scope
-- Updates seller access
-- Affects who can see product
+- Add or remove specific sellers
+- Update access list as relationships change
+- Only visible if product is set to Private
 
-#### Allowed Sellers
+### 6. Variant Management (Fully Editable)
 
-- Editable if product is private
-- Multi-select sellers
-- Updates access list
-- Affects seller relationships
+Add or remove product variants:
 
-### 6. Variant Management Section
+- **Add variants**: Assign new variants to product
+- **Remove variants**: Remove existing variant assignments
+- **Manage stock**: Update inventory levels per variant
+- **Update pricing**: Set variant-specific prices if needed
+- **Generate barcodes**: Create QR codes for variants
 
-Manage product variants:
+## Editing Scenarios
 
-- **Variant Management**: Add/remove variant assignments
-- **Stock Management**: Adjust stock levels per variant
-- **Pricing**: Update variant-specific pricing
-- **Barcodes**: Generate/print barcodes per variant
+### Scenario 1: Correcting a Typo in Product Name
 
-## Form Validation
+**Status**: No orders exist yet
+**What You Can Edit**:
 
-### Context-Aware Validation
+- Product name ✓
+- Product code ✓
+- Variant type ✓
+- Everything else ✓
 
-Uses `createEditProductSchemaWithContext` with original product state:
+**Process**:
 
-```typescript
-const schema = createEditProductSchemaWithContext({
-  originalProduct: product,
-  hasOrders,
-  hasPurchases,
-  hasStockMovements,
-  canChangeCode: !hasOrders,
-  canChangeVariantType: !hasOrders,
-});
-```
+1. Update product name with correct spelling
+2. Review other information for accuracy
+3. Click "Update Product"
+4. Changes take effect immediately
 
-### Validation Rules
+### Scenario 2: Updating Price After Supplier Cost Change
 
-#### Code Validation
+**Status**: Product has existing purchase orders
+**What You Can Edit**:
 
-- **Editable**: Must be unique if changed
-- **Locked**: Cannot be changed
-- Format: 10-20 characters
-- Contains product name and timestamp
+- Selling price ✓ (with warning)
+- Buy price ✓ (with warning)
+- Product code ✗ (locked)
+- Variant type ✗ (locked)
 
-#### Variant Type Validation
+**Process**:
 
-- **Editable**: Must be valid variant type
-- **Locked**: Cannot be changed
-- Affects available variants
+1. See warning banner about purchase order history
+2. Update buy price to new supplier cost
+3. Adjust selling price to maintain margins
+4. Consider updating old price to show original was higher
+5. Click "Update Product"
+6. Document price change reason internally
 
-#### Price Validation
+### Scenario 3: Adding New Variants to Existing Product
 
-- Must be positive numbers
-- No upper limit
-- Warns about purchase history
+**Status**: Product has customer orders
+**What You Can Edit**:
 
-#### Media Validation
+- Add new variants ✓ (of same type)
+- Remove existing variants ✓
+- Product code ✗ (locked)
+- Change variant type ✗ (locked)
 
-- At least one image required
-- Video optional
-- Size and format restrictions
+**Process**:
 
-## Form State Management
+1. See variant type is locked (orders exist)
+2. Click "Add Variant" to add new color/size combinations
+3. Set pricing and stock for new variants
+4. Generate barcodes for new variants
+5. Click "Update Product"
 
-### Default Values
+### Scenario 4: Making a Private Product Public
 
-Form pre-populated with existing product data:
+**Status**: Product has existing orders
+**What You Can Edit**:
 
-```typescript
-const methods = useForm<FormData>({
-  resolver: zodResolver(createEditProductSchemaWithContext({...})),
-  defaultValues: {
-    id: product.id,
-    name: product.name,
-    code: product.code,
-    providerId: product.providerId,
-    categoryId: product.categoryId,
-    buyPrice: product.buyPrice,
-    sellingPrice: product.sellingPrice,
-    oldPrice: product.oldPrice,
-    posPrice: product.posPrice,
-    wareHousePrice: product.wareHousePrice,
-    images: product.images.map((url, index) => ({
-      url,
-      name: `image-${index}`,
-      key: `key-${index}`
-    })),
-    video: product.video ? [{ url: product.video, name: "video", key: "video-key" }] : [],
-    description: product.description || "",
-    variantType: product.variantType,
-    minimumSellerType: product.minimumSellerType,
-    ratingStars: product.ratingStars,
-    isPublic: product.isPublic,
-    allowedSellerIds: product.allowedSellerIds,
-    specialSellerPricing: product.specialSellerPrices.map((price) => ({
-      sellerId: price.sellerId,
-      price: price.price
-    }))
-  }
-})
-```
+- Public/Private toggle ✓
+- Allowed sellers ✓
+- Product code ✗ (locked)
 
-### Disabled Fields
+**Process**:
 
-Fields disabled based on restrictions:
+1. Change "Private" to "Public"
+2. Allowed sellers field disappears (not needed for public)
+3. All eligible sellers can now see product
+4. Click "Update Product"
 
-```typescript
-<FormControl>
-  <Input
-    {...field}
-    placeholder={editDict.basicInfo.codePlaceholder}
-    disabled={!restrictions.canChangeCode}
-  />
-</FormControl>
-```
+## What Happens When You Submit
 
-## Submission Process
+### Validation
 
-### Update Action
+The system checks:
 
-```typescript
-const onSubmit = (data: FormData) => {
-  startTransition(async () => {
-    try {
-      const formattedData: EditProductInput = {
-        id: data.id,
-        name: data.name,
-        code: data.code,
-        providerId: data.providerId,
-        categoryId: data.categoryId,
-        buyPrice: data.buyPrice,
-        sellingPrice: data.sellingPrice,
-        oldPrice: data.oldPrice,
-        posPrice: data.posPrice,
-        wareHousePrice: data.wareHousePrice,
-        images: data.images,
-        video: data.video,
-        description: data.description,
-        ratingStars: data.ratingStars,
-        variantType: data.variantType,
-        minimumSellerType: data.minimumSellerType,
-        isPublic: data.isPublic,
-        allowedSellerIds: data.allowedSellerIds,
-        specialSellerPricing: data.specialSellerPricing,
-      };
+- All required fields are filled
+- Prices are positive numbers
+- At least one image exists
+- Variant selections are valid
+- Business restrictions are respected
 
-      const result = await updateProductAction(formattedData);
+### Success
 
-      if (result.success) {
-        toast.success(result.message);
-        window.location.reload();
-      } else {
-        toast.error(result.error);
-      }
-    } catch (error) {
-      toast.error("Unexpected error");
-    }
-  });
-};
-```
+If validation passes:
 
-### Success Flow
+- Product is updated in the database
+- Changes appear immediately
+- You'll see a success message
+- Page reloads to show updated information
 
-1. Form validation passes
-2. Business rules enforced
-3. Product updated in database
-4. Changes reflected immediately
-5. Success toast displayed
-6. Page reloaded to show updates
+### Errors
 
-### Error Handling
+If validation fails:
 
-- Validation errors show inline
-- Business rule violations prevented
-- Server errors show toast messages
-- Form state preserved
-- User can retry
+- Error messages explain what's wrong
+- Form preserves your entries
+- Fix issues and resubmit
 
-## Permissions
-
-### Required Permissions
-
-- `products:view` - View product details
-- `products:edit` - Edit product information
-
-## Technical Implementation
-
-### Component Hierarchy
-
-```
-EditProductPage (Server)
-  └── EditProductPageContent (Client)
-      ├── EditProductForm
-      └── VariantManagementPanel
-          ├── VariantManagementSection
-          └── other variant components
-```
-
-### Key Components
-
-#### EditProductForm
-
-Main form component:
-
-- Business restriction logic
-- Protected field handling
-- Context-aware validation
-- Update submission
-
-#### VariantManagementPanel
-
-Variant management:
-
-- Add/remove variant assignments
-- Update stock levels
-- Variant pricing
-- Barcode generation
-
-## Best Practices
+## Business Best Practices
 
 ### Editing Products with Orders
 
-- **Code**: Cannot be changed (protected)
-- **Variant Type**: Cannot be changed (protected)
-- **Pricing**: Editable but be careful
-- **Description**: Can be updated freely
-- **Images**: Can be updated freely
-- **Variants**: Edit existing, add new if type matches
+**Focus on**: Description, images, pricing, adding variants of current type
+**Avoid**: Changing product code or variant type
+**Consider**: Impact on order history and customer communications
 
-### Editing Products with Purchases
+### Editing Products with Purchase Orders
 
-- **Pricing**: Editable but affects purchase history
-- **Consider**: Creating new variant for price changes
-- **Document**: Price change reasons
-- **Communicate**: Inform purchasing team
+**Focus on**: Pricing updates with care, documentation of changes
+**Avoid**: Frequent price changes that confuse financial analysis
+**Consider**: Creating new product variant for price changes
 
 ### Editing Products with Stock Movements
 
-- **Variants**: Edit carefully
-- **Stock**: Update via inventory management, not here
-- **Barcodes**: Regenerate if needed
-- **Consider**: Impact on current stock
+**Focus on**: Updating stock levels (via inventory management), not variant structure
+**Avoid**: Removing variants that have stock history
+**Consider**: Impact on inventory tracking and audit trails
 
-### Making Products Public/Private
+### Making Visibility Changes
 
-- **To Private**: Select specific sellers to grant access
-- **To Public**: All eligible sellers can see product
-- **Minimum Type**: Set appropriate seller type threshold
-- **Consider**: Seller relationships and agreements
+**When Making Public**: Communicate to all eligible sellers about new product availability
+**When Making Private**: Communicate to affected sellers about product removal
+**When Changing Seller Type**: Inform sellers about access changes
 
 ### Updating Media
 
-- **Images**: Upload new ones, old ones replaced
-- **Video**: Replace with new upload
-- **Quality**: Maintain consistent quality
-- **SEO**: Update alt text and descriptions
+**Best Practices**:
+
+- Maintain consistent quality across images
+- Use recent, accurate photos
+- Show product features clearly
+- Demonstrate usage with video if helpful
+- Keep file sizes reasonable
+
+### Pricing Updates
+
+**When Updating**:
+
+- Document reason for price change
+- Consider competitive pricing
+- Maintain profit margins
+- Communicate changes to sellers if significant
+- Update old price to create sale effect if appropriate
 
 ## Common Issues
 
-### Cannot Edit Product Code
+### Can't Edit Product Code
 
 **Reason**: Product has customer orders
 
 **Solution**:
 
 - Leave code as-is
-- Product code is reference for order history
+- Product code is permanent reference for order history
 - Cannot be changed due to business rules
 
 ### Variant Type Dropdown Disabled
@@ -579,23 +380,23 @@ Variant management:
 **Solution**:
 
 - Cannot change variant type
-- Add variants of current type
-- Create new product if different type needed
+- Can add/remove variants of current type
+- Create new product if different variant type needed
 
-### Price Change Warnings
+### See Price Change Warning
 
 **Reason**: Product has purchase orders
 
 **Solution**:
 
 - Proceed with caution
-- Document price changes
-- Consider impact on financial reporting
-- May need to update purchase contracts
+- Understand that historical analysis will show old prices
+- Document price change reasons
+- Consult with finance team if unsure
 
-### Validation Errors
+### Form Won't Submit
 
-**Common causes**:
+**Possible Causes**:
 
 - Missing required fields
 - Invalid price values
@@ -604,62 +405,44 @@ Variant management:
 
 **Solution**:
 
-- Check all required fields
+- Check for error messages
+- Fill all required fields
 - Verify prices are positive
 - Ensure at least one image
-- Check variant assignments match type
+- Check variant assignments
 
-## Data Integrity Considerations
+## Data Integrity
 
-### Order History
+### Order History Protection
 
-- Order records reference product codes
-- Changing codes breaks order tracking
-- Codes are permanent for ordered products
+- Orders permanently reference product codes
+- Changing codes would break order tracking
+- Customer invoices and shipping labels would be wrong
+- System prevents this by locking codes
 
-### Financial Records
+### Financial Record Preservation
 
-- Purchase orders reference prices
-- Price changes affect historical analysis
-- Original prices preserved in records
+- Purchase orders reference original prices
+- Historical analysis depends on stable prices
+- System allows price changes but warns about impact
+- Original prices are preserved in purchase order records
 
-### Inventory Tracking
+### Inventory Tracking Consistency
 
-- Stock movements reference variants
-- Changing variants affects tracking
-- Maintain consistent variant structure
+- Stock movements reference specific variants
+- Changing variant structure affects tracking
+- System allows adding/removing variants but warns
+- Original variant assignments remain in inventory history
 
-### Audit Trail
+## Permissions
 
-- All changes are logged
-- User who made changes recorded
-- Timestamp of changes preserved
-- Reasons can be documented
+This page requires:
 
-## Related Files
-
-### Page Components
-
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/page.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/_components/edit-product-page-content.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/_components/edit-product-form.tsx`
-
-### Variant Management
-
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/_components/variant-management-panel.tsx`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/_components/variant-management-section.tsx`
-
-### Server Actions
-
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/_lib/actions.ts`
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/_lib/queries.ts`
-
-### Validation
-
-- `src/app/[lang]/(dashboard-layout)/dashboards/admin/products/[id]/edit/_lib/validations.ts`
+- **products:view**: View product details
+- **products:edit**: Make changes to products
 
 ## Next Steps
 
-- Learn about [Product List](./product-list.md)
-- Learn about [Product Creation](./product-creation.md)
-- Learn about [Product Details & Barcodes](./product-details.md)
+- Return to [Product List](./product-list.md) to see updated products
+- Create new products on the [Product Creation](./product-creation.md) page
+- Generate barcodes on the [Product Details](./product-details.md) page

@@ -1,5 +1,5 @@
 site_name: marocAffiliate Documentation
-site_description: Technical and product documentation for marocAffiliate
+site_description: Business and product documentation for marocAffiliate platform
 site_url: https://docs.marocaffiliate.com
 repo_name: maroc-affiliate-docs
 repo_url: https://github.com/marocaffiliate/maroc-affiliate-docs
@@ -7,12 +7,30 @@ repo_url: https://github.com/marocaffiliate/maroc-affiliate-docs
 theme:
   name: material
   language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
     - navigation.instant
     - navigation.sections
+    - navigation.top
     - content.code.copy
     - search.suggest
     - search.highlight
+    - toc.follow
+    - toc.integrate
 
 plugins:
   - search
@@ -22,6 +40,8 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - tables
+  - pymdownx.superfences
+  - pymdownx.tasklist
   - toc:
       permalink: true
 
