@@ -29,6 +29,8 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - Admin Dashboard:
+      - Product Management: admin-dashboard/product-management.md
   - Architecture: architecture.md
   - Development: development.md
   - Deployment: deployment.md
