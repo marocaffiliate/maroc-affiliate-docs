@@ -30,7 +30,7 @@ theme:
     - search.suggest
     - search.highlight
     - toc.follow
-    - toc.integrate
+    - toc.sticky
 
 plugins:
   - search
