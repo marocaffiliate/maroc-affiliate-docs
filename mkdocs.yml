@@ -54,6 +54,30 @@ nav:
           - Product Creation: admin-dashboard/product/product-creation.md
           - Product Edit: admin-dashboard/product/product-edit.md
           - Product Details & Barcodes: admin-dashboard/product/product-details.md
+      - Stock:
+          - Main & Warehouse Stock: admin-dashboard/stock/main-and-warehouse-stock.md
+          - Stock Transfer: admin-dashboard/stock/stock-transfer.md
+          - Stock Requests: admin-dashboard/stock/stock-requests.md
+          - Stock Integrity: admin-dashboard/stock/stock-integrity.md
+      - Purchases & Returns:
+          - Purchase (Stock In): admin-dashboard/purchases/purchase-stock-in.md
+          - Purchase Return (Stock Out): admin-dashboard/purchases/purchase-returns-stock-out.md
+      - Categories & Variants:
+          - Categories: admin-dashboard/categories/categories.md
+          - Variants: admin-dashboard/categories/variants.md
+          - Product Variants: admin-dashboard/categories/product-variants.md
+      - Customers & Users:
+          - Customers: admin-dashboard/users/customers.md
+          - Users: admin-dashboard/users/users.md
+          - Warehouses: admin-dashboard/users/warehouses.md
+      - Delivery Companies:
+          - Overview: admin-dashboard/delivery-companies/delivery-companies-overview.md
+          - Company Fees & Local Fee Rules: admin-dashboard/delivery-companies/company-fees-and-local-fee-rules.md
+          - API Settings: admin-dashboard/delivery-companies/api-settings.md
+          - Statuses: admin-dashboard/delivery-companies/statuses.md
+          - Status Mapping: admin-dashboard/delivery-companies/status-mapping.md
+          - Webhook Logs: admin-dashboard/delivery-companies/webhook-logs.md
   - Architecture: architecture.md
+  - RBAC: architecture/rbac.md
   - Development: development.md
   - Deployment: deployment.md

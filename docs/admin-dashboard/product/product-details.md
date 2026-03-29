@@ -110,8 +110,8 @@ The system creates one unique QR code per selected variant.
 ```
 ┌─────────────────────────────┐
 │   [QR Code]   Product Name  │
-│                  Size          │
-│                  Color         │
+│                  Size       │
+│                  Color      │
 └─────────────────────────────┘
 ```
 

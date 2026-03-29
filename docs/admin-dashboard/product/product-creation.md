@@ -11,12 +11,12 @@ Add new products to your catalog with all required information.
 ### Basic Information
 
 | Field            | Description                     | Required             |
-| ---------------- | ------------------------------- | -------------------- | --- |
+| ---------------- | ------------------------------- | -------------------- |
 | **Product Name** | Clear, descriptive name         | ✅                   |
 | **Provider**     | Select from available suppliers | ✅                   |
 | **Category**     | Product category                | ✅                   |
 | **Rating**       | Quality rating (0-5 stars)      | ✅                   |
-| **Description**  | Product details                 | Use rich text editor | ✅  |
+| **Description**  | Product details                 | Use rich text editor |
 
 > **Note**: System automatically generates a unique product code.
 

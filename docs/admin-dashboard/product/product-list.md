@@ -41,7 +41,7 @@ Click checkboxes to select individual products or use "Select All" to select all
 
 ### Take Actions
 
-| Action           | Description              |
+| Action           | Description              |                                        |
 | ---------------- | ------------------------ | -------------------------------------- |
 | **View Details** | Click product name       | See complete product information       |
 | **Edit**         | Click Edit button        | Modify product information             |
