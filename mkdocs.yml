@@ -29,7 +29,11 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Admin Dashboard:
-      - Product Management: admin-dashboard/product-management.md
+      - Product Management:
+          - Product List: admin-dashboard/product/product-list.md
+          - Product Creation: admin-dashboard/product/product-creation.md
+          - Product Edit: admin-dashboard/product/product-edit.md
+          - Product Details & Barcodes: admin-dashboard/product/product-details.md
   - Architecture: architecture.md
   - Development: development.md
   - Deployment: deployment.md
