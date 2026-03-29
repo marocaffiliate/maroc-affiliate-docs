@@ -1,15 +1,14 @@
 site_name: marocAffiliate Documentation
 site_description: Technical and product documentation for marocAffiliate
 site_url: https://docs.marocaffiliate.com
-repo_name: marocAffiliate-docs
-repo_url: https://github.com/your-org/marocAffiliate-docs
+repo_name: maroc-affiliate-docs
+repo_url: https://github.com/marocaffiliate/maroc-affiliate-docs
 
 theme:
   name: material
   language: en
   features:
     - navigation.instant
-    - navigation.tabs
     - navigation.sections
     - content.code.copy
     - search.suggest
