@@ -1,0 +1,326 @@
+# Seller Inventory & Product Details
+
+> **Target pages**
+>
+> - Inventory list: `/en/dashboards/seller/inventory`
+> - Product details: `/en/dashboards/seller/inventory/[id]?warehouseId=...`
+>
+> **Audience:** team members working on seller-facing inventory flows  
+> **Estimated reading time:** ~8-10 minutes
+
+---
+
+## 1) What this feature does (at a glance)
+
+The Seller Inventory module lets a seller (or a seller team member) browse products available in visible warehouses, then drill down to a single product detail page with stock, variant, pricing, and engagement context.
+
+The flow is:
+
+1. Seller picks a warehouse.
+2. Seller filters/searches/sorts products.
+3. Seller scrolls inventory cards (infinite loading).
+4. Seller opens a product detail page.
+5. Seller views variant-level stock and can engage (likes/comments).
+
+---
+
+## 2) Access control and visibility rules
+
+!!! warning "Hard gate"
+    Both pages require `inventory:view`. Permission is enforced at layout level and again in server-side queries/actions.
+
+### Permission enforcement points
+
+- Layout guard for inventory list: `inventory/layout.tsx`
+- Layout guard for product detail: `inventory/[id]/layout.tsx`
+- Server queries/actions also call `requirePermission("inventory:view")`
+
+### Seller-scoped visibility
+
+Product visibility is scoped through:
+
+- `loadSellerVisibilityContext(userId)`
+- `buildProductVisibilityWhere(sellerContext)`
+
+This means team members only see products their effective seller context is allowed to view.
+
+### Warehouse validation
+
+- Every warehouse-aware query validates warehouse via `validateWarehouse(warehouseId)`.
+- Invalid/inactive warehouse leads to safe failure (`404`/empty/throw depending on caller).
+
+---
+
+## 3) Inventory list page (`/dashboards/seller/inventory`)
+
+## 3.1 Route behavior
+
+- Loads dictionary + seller-visible warehouses in parallel.
+- If no warehouses are available: renders an empty-state message.
+- Selected warehouse logic:
+  - Uses `warehouseId` from query params if present.
+  - Falls back to the first available warehouse.
+  - If warehouse is not in the allowed list => `notFound()`.
+
+## 3.2 Main UI zones
+
+### A) Warehouse selector
+
+Component: `inventory/_components/warehouse-selector.tsx`
+
+- Searchable dropdown of active warehouses visible to sellers.
+- On warehouse change:
+  - updates `warehouseId` in URL
+  - removes `page` param (pagination reset)
+- Shows per-warehouse product count badge.
+
+### B) Filters + search + sorting
+
+Component: `inventory/_components/inventory-filters.tsx`
+
+- Debounced search (500ms).
+- URL-driven filtering (query params are source of truth).
+- Quick sort chips:
+  - `recommended` (desc)
+  - `name` (asc)
+  - `price` (asc)
+  - `quantity` (desc)
+- Extra filters sheet:
+  - stock level (`all`, `in-stock`, `low-stock`, `out-of-stock`)
+  - category
+  - order (`asc`, `desc`)
+
+### C) Product grid
+
+Components:
+
+- `inventory/_components/inventory-grid.tsx`
+- `inventory/_components/inventory-product-card.tsx`
+
+Card includes:
+
+- hero image + overlayed stock signal
+- code/category/variant count
+- price presentation:
+  - seller effective price
+  - base price when special seller price exists
+  - optional old price
+- stock indicators (available vs total, reserved warning)
+- engagement actions:
+  - like/unlike
+  - comments preview/open
+  - likes viewer list
+
+### D) Infinite loading
+
+Implemented in `inventory-content.tsx` with `IntersectionObserver` sentinel.
+
+- Trigger when near viewport (`rootMargin: 200px`)
+- Loads next page and appends products
+- Uses dedicated loading state for smooth UX
+
+## 3.3 Query parameters used
+
+| Param | Purpose | Example |
+|---|---|---|
+| `warehouseId` | Selected warehouse | `?warehouseId=3` |
+| `search` | Name/code text search | `&search=hoodie` |
+| `category` | Category slug | `&category=men-fashion` |
+| `stockLevel` | Stock filter | `&stockLevel=low-stock` |
+| `sort` | Sort field | `&sort=recommended` |
+| `order` | Sort direction | `&order=desc` |
+| `page` | Pagination page | `&page=2` |
+| `limit` | Page size | `&limit=10` |
+
+!!! note "Implementation nuance"
+    Search-param schema defaults `limit` to 20, while client filter defaults to 10 when no URL value exists. In practice, the client sends `limit` on requests, so page size generally follows client state.
+
+## 3.4 Server data flow
+
+Core query file: `inventory/_lib/queries.ts`
+
+### `getWarehousesForSeller()`
+
+- Loads active + seller-visible warehouses.
+- Computes warehouse stats for UI:
+  - totals, available, reserved
+  - inventory value (based on product `sellingPrice`, treated as seller cost)
+  - low stock and out-of-stock counts
+
+### `getSellerInventoryProducts(params)`
+
+- Applies seller visibility and warehouse validation.
+- Builds dynamic Prisma filters for search/category/stock level.
+- Aggregates variant-level warehouse stock into product-level cards.
+- Adds engagement summary per product:
+  - like count
+  - comment count
+  - `viewerLiked`
+- Supports recommendation sort:
+  - ranking generated by `getRecommendedProducts(...)`
+  - current weight blend:
+    - trending: `0.25`
+    - history: `0.35`
+    - similar sellers: `0.2`
+    - engagement: `0.05`
+    - stock availability: `0.1`
+    - newness: `0.05`
+
+### `getInventoryCategories()`
+
+- Returns category list for filter dropdown.
+
+## 3.5 Caching and invalidation
+
+Caching uses `unstable_cache` with tags.
+
+- Warehouse list tags: `warehouses`, `seller-inventory`
+- Inventory list tags: `seller-inventory`, `warehouse-{id}`, `seller-{sellerId}`
+- Category tags: `categories`
+
+Revalidation also happens from engagement actions (likes/comments) using tag-based invalidation.
+
+---
+
+## 4) Product details page (`/dashboards/seller/inventory/[id]`)
+
+## 4.1 Route behavior
+
+- Reads `id` from path and optional `warehouseId` from query params.
+- Fetches dictionary + `getProductDetails(productId, warehouseId)` in parallel.
+- Invalid product id or inaccessible product => `404`.
+
+## 4.2 Layout composition
+
+Main page components:
+
+- `ProductHeader`
+- `ProductImageGallery` (shown only if image/video exists)
+- `ProductInfo`
+
+### `ProductHeader` capabilities
+
+- Back to inventory (`router.back()`)
+- Refresh page data
+- Actions menu:
+  - copy current page link
+  - export product JSON snapshot
+  - print product details
+
+### `ProductInfo` capabilities
+
+- Pricing card (seller cost, base price, old price, special-price helper)
+- Product essentials (code, category, variant type, rating, stock level)
+- Optional rich description render
+- Quick stats (total and available)
+- Embedded social feedback card (`ProductFeedback`)
+
+!!! info "Rich description rendering"
+    Product description is rendered as raw HTML when tags are detected (`dangerouslySetInnerHTML`). Input quality/sanitization therefore matters upstream in product management.
+
+## 4.3 Variant display logic
+
+Component: `inventory/[id]/_components/product-variants.tsx`
+
+- If `variantType = COLOR_SIZE`:
+  - matrix table (rows = colors, columns = sizes)
+  - each cell shows available stock, reserved badge, optional SKU
+- If `variantType = CUSTOM`:
+  - mobile cards + desktop table
+  - variant label + stock breakdown (+ optional barcode)
+- If no variants (`NONE`): no variant block rendered.
+
+Stock totals in variant block are warehouse-aware when `warehouseId` is provided.
+
+## 4.4 Feedback system on details page
+
+Component: `inventory/[id]/_components/product-feedback.tsx`
+
+Supports:
+
+- like/unlike product
+- add comment (max 500 chars)
+- delete own comments
+- view likes/comments in dialog (desktop) or drawer (mobile)
+- paginated fetching of likes/comments for overlay views
+
+Data/actions involved:
+
+- Fetch lists: `inventory/_lib/engagement-actions.ts`
+- Mutations: `inventory/[id]/_lib/actions.ts`
+
+All mutations enforce:
+
+- authenticated user
+- `inventory:view` permission
+- seller-product access check via `ensureSellerProductAccess(...)`
+
+---
+
+## 5) Important backend contracts
+
+### Product-level stock semantics
+
+- `total` = all units
+- `reserved` = allocated units
+- `available` = `quantity - reservedQuantity`
+
+### Price semantics on seller pages
+
+- Seller-facing "cost" is based on product `sellingPrice`.
+- If a special seller price exists, it overrides base selling price for display/calculation.
+
+### Safety checks
+
+- Warehouse and product access are both validated server-side.
+- Even if URL is manipulated, inaccessible data is blocked.
+
+---
+
+## 6) File map (for fast onboarding)
+
+### Inventory list page
+
+- Route: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/page.tsx`
+- Layout guard: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/layout.tsx`
+- List queries: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/_lib/queries.ts`
+- Search param schema: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/_lib/validations.ts`
+- Main client container: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/_components/inventory-content.tsx`
+- Filters: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/_components/inventory-filters.tsx`
+- Grid: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/_components/inventory-grid.tsx`
+- Card: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/_components/inventory-product-card.tsx`
+
+### Product detail page
+
+- Route: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/page.tsx`
+- Layout guard: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/layout.tsx`
+- Detail queries: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/_lib/queries.ts`
+- Detail actions: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/_lib/actions.ts`
+- Header: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/_components/product-header.tsx`
+- Info panel: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/_components/product-info.tsx`
+- Variants: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/_components/product-variants.tsx`
+- Feedback: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/[id]/_components/product-feedback.tsx`
+- Shared engagement fetchers: `src/app/[lang]/(dashboard-layout)/dashboards/seller/inventory/_lib/engagement-actions.ts`
+
+---
+
+## 7) Known behaviors to keep in mind
+
+- Infinite scroll is URL + state aware; changing filters resets paging.
+- Card-level engagement updates use optimistic UI in places for responsiveness.
+- Cache tags are broad enough to keep list/detail/feedback mostly in sync after mutations.
+- Product detail page can be scoped to one warehouse (`warehouseId`) or show aggregated warehouse stocks if omitted.
+
+---
+
+## 8) Quick QA checklist (manual)
+
+- [ ] User without `inventory:view` is blocked from both pages.
+- [ ] Warehouse switch updates URL and refreshes product list.
+- [ ] Search, category, stock level, sort, and order all update results.
+- [ ] Infinite scroll loads next page without duplicates.
+- [ ] Product card click opens correct details route with `warehouseId`.
+- [ ] Special seller pricing appears correctly when configured.
+- [ ] Likes/comments can be added and reflected in UI.
+- [ ] User can delete only their own comments.
+- [ ] Invalid `warehouseId` or inaccessible product returns safe fallback (404/empty).
